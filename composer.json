@@ -1,0 +1,20 @@
+{
+  "name": "aaltomeri/woocommerce-discogs",
+  "description": "a Plugin that will allow easy import of Discogs data to populate Woocommerce Product Fields",
+  "keywords": ["wordpress", "plugin", "discogs", "woocommerce"],
+  "homepage": "https://roots.io",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Thomas Mery",
+      "email": "dev@aaltomeri.net",
+      "homepage": "http://aaltomeri.net"
+    }
+  ],
+  "type": "wordpress-plugin",
+  "require": {
+    "php": ">=5.4",
+    "composer/installers": "v1.0.6",
+    "ricbra/php-discogs-api": "^1.2"
+  }
+}
