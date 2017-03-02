@@ -20,7 +20,7 @@
   },
   "autoload": {
         "psr-4": {
-            "WC_Discogs\\": ""
+            "WC_Discogs\\": "includes/"
         }
     }
 }
