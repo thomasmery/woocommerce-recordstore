@@ -18,8 +18,8 @@ class API {
 		$this->client = ClientFactory::factory([
 			'defaults' => [
 				'query' => [
-					'key' => 'sojGGgMQZXYXgbzhlVJF',//Settings::$options['discogs_api_consumer_key'],
-					'secret' => 'mqjWhtNtNjcZXbNZDsAefmaJjbLfUQYx',//Settings::$options['discogs_api_consumer_secret'],
+					'key' => getenv('DISCOGS_API_CONSUMER_KEY'),
+					'secret' => getenv('DISCOGS_API_CONSUMER_SECRET'),
 				]
 			]
 		]);

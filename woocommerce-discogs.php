@@ -45,6 +45,12 @@ class WC_Discogs {
 		register_deactivation_hook( __FILE__, [ $plugin, 'deactivate'] );
 		register_uninstall_hook( __FILE__, [ 'WC_Discogs::uninstall' ]);
 
+		// get ENV vars from .env file
+		$dotenv = new \Dotenv\Dotenv(\WC_Discogs\PLUGIN_PATH);
+		if (file_exists(\WC_Discogs\PLUGIN_PATH . '/.env')) {
+			$dotenv->load();
+		}
+
 	}
 
 	public function __construct() {}
