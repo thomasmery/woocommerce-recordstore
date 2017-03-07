@@ -32,17 +32,17 @@ class Database extends API {
 
 	public function get_release($title, $artist = '', $type = 'release') {
 
-		$body = $this->search( [
+		$response = $this->search( [
 			'title' => $title,
 			'artist' => $artist,
 			'type' => $type,
 		] );
 
-		if ( empty($body['results']) ) {
+		if ( empty($response['results']) ) {
 			return null;
 		}
 
-		$id = $body['results'][0]['id'];
+		$id = $response['results'][0]['id'];
 
 		switch($type) {
 			case 'release':

@@ -29,6 +29,9 @@ class ApiTest extends WP_UnitTestCase {
 		$release = $results[0];
 		$this->assertEquals( 'Nick Drake - Five Leaves Left', $release['title']);
 	}
+
+	/**
+	 * Master release
 	 */
 	function test_get_master_release() {
 
@@ -39,6 +42,9 @@ class ApiTest extends WP_UnitTestCase {
 
 	}
 
+	/**
+	* Artwork URI
+	*/
 	function test_get_artwork_uri() {
 
 		$discogs_api_db = new Database();
