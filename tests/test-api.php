@@ -13,7 +13,22 @@ use WC_Discogs\Api\Discogs\Database;
 class ApiTest extends WP_UnitTestCase {
 
 	/**
-	 * A single example test.
+	 * Search
+	 */
+	function test_search() {
+		$discogs_api_db = new Database();
+		$response = $discogs_api_db->search(
+			[
+				'title' => 'Five Leaves Left',
+				'artist' => 'Nick Drake',
+				'type' => 'release',
+			]
+		);
+		$results = $response['results'];
+		$this->assertTrue( ! empty($results) );
+		$release = $results[0];
+		$this->assertEquals( 'Nick Drake - Five Leaves Left', $release['title']);
+	}
 	 */
 	function test_get_master_release() {
 
