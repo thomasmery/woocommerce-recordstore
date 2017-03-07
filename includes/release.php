@@ -34,7 +34,6 @@ class Release {
 	public function has_artwork() {
 		$has_artwork = false;
 		$post_featured_image_id = get_post_thumbnail_id($this->post->ID);
-
 		if ($post_featured_image_id) {
 			$has_artwork = true;
 

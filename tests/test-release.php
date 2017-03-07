@@ -1,6 +1,6 @@
 <?php
 /**
- * Class RecordTest
+ * Class ReleaseTest
  *
  * @package Woocommerce_Discogs
  */
@@ -12,10 +12,10 @@ use WC_Discogs\Media;
 /**
  * Sample test case.
  */
-class RecordTest extends WP_UnitTestCase {
+class ReleaseTest extends WP_UnitTestCase {
 
 	/**
-	 * testing if wa can accurately tell of a Record has artwork or not
+	 * testing if we can accurately tell of a Release has artwork or not
 	 */
 	function test_get_has_associated_post() {
 
@@ -29,7 +29,7 @@ class RecordTest extends WP_UnitTestCase {
 
 
 	/**
-	 * testing if wa can accurately tell of a Record has artwork or not
+	 * testing if wa can accurately tell of a Release has artwork or not
 	 */
 	function test_get_has_artwork() {
 
