@@ -3,13 +3,6 @@
  * View for the Settings page
  */
 
-use  WC_Discogs\Admin\Settings;
-
-$discogs_db = new \WC_Discogs\API\Discogs\Database();
-$results = $discogs_db->search();
-
-print_r($results);
-
 ?>
 
 <div class="wrap">
