@@ -5,12 +5,12 @@
  * @package Woocommerce_Discogs
  */
 
-use WC_Discogs\Api\Discogs\Database;
+use WC_Discogs\API\Discogs\Database;
 
 /**
  * Sample test case.
  */
-class ApiTest extends WP_UnitTestCase {
+class APITest extends WP_UnitTestCase {
 
 	/**
 	 * Search

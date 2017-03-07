@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "25a86b8759ea59181cb8fc63011e3287",
-    "content-hash": "49d8c37b58d5163960c43e7b703b9db5",
+    "hash": "de6770d08b93df7ae2c3684e248bf03f",
+    "content-hash": "f61aaf153eb4ad54e3976f6b3594b258",
     "packages": [
         {
             "name": "composer/installers",
@@ -421,16 +421,16 @@
         },
         {
             "name": "ricbra/php-discogs-api",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ricbra/php-discogs-api.git",
-                "reference": "7b63ed2d90fb2dfc7acbe480a219a680968f550e"
+                "reference": "15c64d136f0732b44fa85c817cea156f6693f48e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ricbra/php-discogs-api/zipball/7b63ed2d90fb2dfc7acbe480a219a680968f550e",
-                "reference": "7b63ed2d90fb2dfc7acbe480a219a680968f550e",
+                "url": "https://api.github.com/repos/ricbra/php-discogs-api/zipball/15c64d136f0732b44fa85c817cea156f6693f48e",
+                "reference": "15c64d136f0732b44fa85c817cea156f6693f48e",
                 "shasum": ""
             },
             "require": {
@@ -471,7 +471,7 @@
                 "api",
                 "discogs"
             ],
-            "time": "2016-03-18 11:22:47"
+            "time": "2017-02-27 20:03:05"
         },
         {
             "name": "vlucas/phpdotenv",

@@ -7,9 +7,9 @@
 namespace WC_Discogs\API\Discogs;
 
 use  \WC_Discogs\Admin\Settings;
-use WC_Discogs\Api\Discogs\API;
+use WC_Discogs\API\Discogs\Resource;
 
-class Database extends API {
+class Database extends Resource {
 
 	public function __construct() {
 		parent::__construct();

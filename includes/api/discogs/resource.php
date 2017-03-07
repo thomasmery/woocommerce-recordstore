@@ -9,7 +9,7 @@ namespace WC_Discogs\API\Discogs;
 use  \WC_Discogs\Admin\Settings;
 use \Discogs\ClientFactory;
 
-class API {
+abstract class Resource {
 
 	protected $client;
 

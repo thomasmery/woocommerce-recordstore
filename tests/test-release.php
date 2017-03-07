@@ -5,7 +5,7 @@
  * @package Woocommerce_Discogs
  */
 
-use WC_Discogs\Api\Discogs\Database;
+use WC_Discogs\API\Discogs\Database;
 use WC_Discogs\Release;
 use WC_Discogs\Media;
 
