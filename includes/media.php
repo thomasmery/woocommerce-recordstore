@@ -12,9 +12,11 @@ class Media {
 	* This is a modified version of the WP function media_sideload_image
 	* allowing to return an attachment $id
 	*
+	* One can set a title and description for the attachment by setting the 3rd param
+	*
 	* @param string $file    The URL of the image to download.
 	* @param int    $post_id The post ID the media is to be associated with.
-	* @param string $desc    Optional. Description of the image.
+	* @param string $desc    Optional. Description of the image. This will beused as the attachment title if present
 	* @return int|WP_Error attachment id on success, WP_Error object otherwise.
 	*/
 	public static function attach_from_url( $file, $post_id, $desc = null) {
@@ -49,6 +51,24 @@ class Media {
 			return $id;
 		}
 
+	}
+
+	/*
+	* find an attachment based on title
+	* quite naive and simple but will do for now
+	*/
+	public static function get_attachment_by_title( $title ) {
+		$q = new \WP_Query(
+			[
+				'post_type' => 'attachment',
+				'post_status' => 'inherit',
+				'title' => $title,
+			]
+		);
+
+		$attachment = $q->posts ? $q->posts[0] : null;
+
+		return $attachment;
 	}
 
 }
