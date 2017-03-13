@@ -3,6 +3,8 @@
  * View for the Settings page
  */
 
+use WC_Discogs\Admin\Settings;
+
 ?>
 
 <div class="wrap">
