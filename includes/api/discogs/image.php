@@ -6,8 +6,4 @@
 
 namespace WC_Discogs\API\Discogs;
 
-class Image {
-
-
-
-}
+class Image {}

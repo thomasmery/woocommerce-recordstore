@@ -15,6 +15,14 @@ class Database extends Resource {
 		parent::__construct();
 	}
 
+	public function get_artwork_uri( $artist, $title ) {
+		$release = $this->get_main_release($artist, $title);
+		if ($release) {
+			return $release['images'][0]['uri'];
+		}
+		return Settings::$options['default_record_image_uri'];
+	}
+
 	public function search( $params = [] ) {
 
 		try {
