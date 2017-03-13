@@ -59,5 +59,37 @@ class APITest extends WP_UnitTestCase {
 			'https://api-img.discogs.com/f6dHeYEBbxwRrEhly06Q5coDuio=/fit-in/174x174/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-1774021-1329680830.jpeg.jpg',
 			$uri);
 	}
+
+	/**
+	* Genres & Styles
+	*/
+	function test_get_genres() {
+
+		$discogs_api_db = new Database();
+		$expected = [
+			'Rock',
+		];
+		$actual = $discogs_api_db->get_genres( 'Hoarse', '16 Horsepower' );
+		$this->assertEquals( $expected, $actual );
+	}
+
+	function test_get_styles() {
+		$discogs_api_db = new Database();
+		$expected = [
+			'Alternative Rock',
+			'Country Rock',
+		];
+		$actual = $discogs_api_db->get_styles( 'Hoarse', '16 Horsepower' );
+		$this->assertEquals( $expected, $actual );
+
+		$expected = [
+			'Art Rock',
+        	'Chanson'
+		];
+		$actual = $discogs_api_db->get_styles( 'Fantaisie militaire', 'Alain bashung' );
+		$this->assertEquals( $expected, $actual );
+
+	}
+
 }
 

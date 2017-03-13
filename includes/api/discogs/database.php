@@ -23,6 +23,29 @@ class Database extends Resource {
 		return Settings::$options['default_record_image_uri'];
 	}
 
+	public function get_genres( $artist, $title ) {
+		$release = $this->get_main_release($artist, $title);
+		$genres = [];
+		if ($release) {
+			return $release['genres'];
+		}
+		return $genres;
+	}
+
+	public function get_styles( $artist, $title ) {
+		$release = $this->get_main_release($artist, $title);
+		$styles = [];
+		if ($release) {
+			return $release['styles'];
+		}
+		return $styles;
+	}
+
+
+	/**
+	* Main release
+	*/
+
 	public function search( $params = [] ) {
 
 		try {
@@ -82,14 +105,6 @@ class Database extends Resource {
 		}
 		return $release;
 
-	}
-
-	public function get_artwork_uri( $artist, $title ) {
-		$release = $this->get_main_release($artist, $title);
-		if ($release) {
-			return $release['images'][0]['uri'];
-		}
-		return Settings::$options['default_record_image_uri'];
 	}
 
 
