@@ -41,10 +41,18 @@ class Database extends Resource {
 		return $styles;
 	}
 
+	public function get_tracklist( $artist, $title ) {
+		$release = $this->get_main_release($artist, $title);
+		$tracklist = [];
+		if ($release) {
+			return $release['tracklist'];
+		}
+		return $tracklist;
+	}
 
 	/**
-	* Main release
-	*/
+	* Gettin' releases
+	*******************/
 
 	public function search( $params = [] ) {
 
@@ -64,8 +72,8 @@ class Database extends Resource {
 	public function get_release($title, $artist = '', $type = 'release') {
 
 		$response = $this->search( [
+			'q' => $artist,
 			'title' => $title,
-			'artist' => $artist,
 			'type' => $type,
 		] );
 

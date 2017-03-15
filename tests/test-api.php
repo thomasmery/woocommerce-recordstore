@@ -36,9 +36,12 @@ class APITest extends WP_UnitTestCase {
 	function test_get_master_release() {
 
 		$discogs_api_db = new Database();
-		$results = $discogs_api_db->get_main_release( 'Hoarse', '16 Horsepower');
 
+		$results = $discogs_api_db->get_main_release( 'Hoarse', '16 Horsepower');
 		$this->assertEquals( 'https://api.discogs.com/releases/1823745', $results['main_release_url']);
+
+		$results = $discogs_api_db->get_main_release( 'Debut', 'Björk');
+		$this->assertEquals( '34486', $results['id']);
 
 	}
 
@@ -89,6 +92,28 @@ class APITest extends WP_UnitTestCase {
 		$actual = $discogs_api_db->get_styles( 'Fantaisie militaire', 'Alain bashung' );
 		$this->assertEquals( $expected, $actual );
 
+	}
+
+	function test_get_tracklist() {
+		$discogs_api_db = new Database();
+		$tracklist = $discogs_api_db->get_tracklist( 'Hoarse', '16 Horsepower' );
+
+		$expected = [
+			'duration' => '5:45',
+			'position' => '8',
+			'type_' => 'track',
+			'title' => 'South Pennsylvania Waltz'
+		];
+		$actual = $tracklist[ 7 ];
+		$this->assertEquals( $expected, $actual );
+
+		$expected = '11';
+		$actual = $tracklist[ 10 ][ 'position' ];
+		$this->assertEquals( $expected, $actual );
+
+		$expected = 'Joy Division';
+		$actual = $tracklist[ 10 ][ 'extraartists' ][ 0 ][ 'name' ];
+		$this->assertEquals( $expected, $actual );
 	}
 
 }
