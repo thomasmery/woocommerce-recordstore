@@ -5,6 +5,7 @@
  * @package Woocommerce_Discogs
  */
 
+
 use WC_Discogs\API\Discogs\Database;
 use WC_Discogs\Release;
 use WC_Discogs\Media;
@@ -14,9 +15,33 @@ use WC_Discogs\Media;
  */
 class ReleaseTest extends WP_UnitTestCase {
 
+	static $__NAMESPACE__ = 'WC_Discogs';
+
 	/**
 	 * testing if we can accurately tell of a Release has artwork or not
 	 */
+	function test_get_artists() {
+
+		$taxonomy = self::$__NAMESPACE__ . '_artist';
+		$separator = " | ";
+
+		$post_id = $this->factory->post->create();
+		$this->assertNotNull($post_id);
+
+		$artists_terms = [];
+		$artists_terms[0] = 'Nick Drake';
+		wp_set_object_terms( $post_id, $artists_terms, $taxonomy , false );
+
+		$record = new Release( $post_id );
+		$this->assertEquals( $artists_terms[0], $record->get_artists() );
+
+		$artists_terms[1] = 'The books';
+		wp_set_object_terms( $post_id, $artists_terms, $taxonomy , false );
+
+		$this->assertEquals( implode($separator, $artists_terms), $record->get_artists( $separator ) );
+
+	}
+
 	function test_get_has_associated_post() {
 
 		$post_id = $this->factory->post->create();
@@ -27,10 +52,6 @@ class ReleaseTest extends WP_UnitTestCase {
 
 	}
 
-
-	/**
-	 * testing if wa can accurately tell of a Release has artwork or not
-	 */
 	function test_get_has_artwork() {
 
 		// does not have artwork

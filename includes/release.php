@@ -20,6 +20,17 @@ class Release {
 		$this->post = get_post( $post_id );
 	}
 
+	/**
+	* get artists names separated by $separator
+	* @param $separator
+	*/
+	public function get_artists( $separator = ', ') {
+		return implode(
+			$separator,
+			wp_get_object_terms( $this->post->ID, __NAMESPACE__ . '_artist', [ 'fields' => 'names' ] )
+		);
+	}
+
 	public function get_artwork() {
 		// get Artwork URI
 	}
