@@ -59,9 +59,13 @@ class WC_Discogs {
 		if( is_admin() ) {
 			new Admin\Settings();
 		}
+
+		new Setup();
 	}
 
-	public function activate() {}
+	public function activate() {
+
+	}
 
 	public function deactivate() {}
 	static public function uninstall() {}
