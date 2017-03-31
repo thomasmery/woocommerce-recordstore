@@ -10,7 +10,7 @@ use WC_Discogs\Release;
 use WC_Discogs\Media;
 
 /**
- * Sample test case.
+ * Release Class test case.
  */
 class ReleaseTest extends WP_UnitTestCase {
 
