@@ -20,10 +20,9 @@ services:
 
 
 env:
-  - WP_VERSION=latest WP_MULTISITE=0
-  - WP_VERSION=3.7 WP_MULTISITE=0
-  - WP_VERSION=4.7.2 WP_MULTISITE=0
-  - WP_TESTS_DIR=/tmp/wordpress-tests-lib
+  - WP_VERSION=latest WP_MULTISITE=0 WP_TESTS_DIR=/tmp/wordpress-tests-lib
+  - WP_VERSION=3.7 WP_MULTISITE=0 WP_TESTS_DIR=/tmp/wordpress-tests-lib
+  - WP_VERSION=4.7.2 WP_MULTISITE=0 WP_TESTS_DIR=/tmp/wordpress-tests-lib
 
 matrix:
   include:
