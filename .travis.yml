@@ -1,48 +1,36 @@
 sudo: false
-
 language: php
-
 notifications:
   email:
     on_success: never
     on_failure: change
-
 branches:
   only:
-    - master
-
+  - master
 php:
-  - 5.6
-  - 7.1
-
+- 5.6
+- 7.1
 services:
-  - mysql
-
-
+- mysql
 env:
+  matrix:
   - WP_VERSION=latest WP_MULTISITE=0 WP_TESTS_DIR=/tmp/wordpress-tests-lib
-  - WP_VERSION=3.7 WP_MULTISITE=0 WP_TESTS_DIR=/tmp/wordpress-tests-lib
-  - WP_VERSION=4.7.2 WP_MULTISITE=0 WP_TESTS_DIR=/tmp/wordpress-tests-lib
-
+  global:
+  - secure: h5vcGxFOXB6JBwdKNpWxVra8t2I08J/hkHyYyHjd6P3NtSYpKzNk1GcHl60h2vpkcCRlxPk0TRbJE0ARSHAnOAErqzXCvv504T00FfZbapbDCBCYa/lqK1g0HJz2bYWmca+L3DiFP21yi6C1pdck78grCQDd9VCjKDkzRkczL/w9i7zsPWml0oYSLnQWndFd6fTL7oAfGlZDaXfEkH5G8JFIyTzHvZYETYNnj09pTewqrtfworZ41Z38urfY0oRatvbEe7C8hsCYao0xl995bnFWoDIXI49aKG62i9fTKJVqLsyFTEh/7P/0e7FsceB22MoGclROasJ0FF/jKg+/ho80uoj/AJjuUI85tAYHOIyOFnlMXKAWe9iCml5YqxEcmJ1SEp+qfXWRysholYcDk5SMaXa0YgggijUgRATu5AKNRUNqvhOmNx824UD2hrb1u+jfn9EJqKjwgWxODB1tRhYxW+WcUuY5aU8OVfKZhy/jqOM8QAqkNaPrMvk15O7TmAOMDWLubZnJcVgZLW+LiidbMPrLSwBg83ohXSEK5udWbv/8KVzkWRTgcVlHDhxoM+ReKqlvcoLyqX2r9OUI+zf1q3+Go97blVA09FH3pRD0jQE5t99obpb7o621dg4vI0TImNj8T6S+D2sc/cJC2Eaq9rnryfn/gYYXkUH/hMM=
+  - secure: eDsvikx2WXCBwurMHN/mKitQtB9rjLCaZogzhty9lZ7XPwOdfiMgtazZlFFRS7bLzkWbEHOojfQiXFSZkVEuiYr6ZT/rLzmg+Ttp+36XRQkjcQZBpSgrCMcGll2UIO0shvroyLYmC1vi56BqUzLvjAPm9CQJs39bpj4IijJoC6xCjLponCFLtiISw6kZ0Mw5M3M5L8nUC9eZgV0sH0jylqTIRZ0RJJBYlzym7MfE3m/AZv1PYMJFsWijlBzsCNaByCq1tUAkwzKqXpF05B2dI93RqyTfe5ly4lwCGdwCFeYcWSgoff5/BafxTWln8RiP1UXn3UCqWvUBgMH1ZBLKyyNpCJxJiCtgtC96LGwBLOo0f88+6OiHVU897M+IBtQihU6MT4nkbhoKItXj6AA3e8gr2QbW20mtc1kO6GmBNSSZkl757RFf3ETuhNFLgxfiq9JDgIuGdThmme+hfsVz2kToszxX4uf24kAs/xiW5a9J7Dl+R8sXEPb3MOLwhTRZn2Wk0Viu+zwV0EGUxF07vkL0D4QdB3/4Z1xuKLVFF7IhPsnl12MhkDBbts9XwLoWpknmKUQKfVGxsfh4+vk5m4Eqqbmxp4IqXLlIsifJC2JfmuYFGpMoYU0JfqcNljyDqIJ/ARgCy1BQLZA70i9E9vsBbgGZOkRTZurZSbL/SRY=
 matrix:
-  include:
-    - php: 5.3
-      env: WP_VERSION=latest WP_MULTISITE=1
-
 before_script:
-  - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
-  - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - |
-    if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
-      composer global require "phpunit/phpunit=5.7.*"
-    else
-      composer global require "phpunit/phpunit=4.8.*"
-    fi
-  - |
-    composer global require wp-coding-standards/wpcs
-    phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs
-  - composer install
-
+- bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+- export PATH="$HOME/.composer/vendor/bin:$PATH"
+- |
+  if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+    composer global require "phpunit/phpunit=5.7.*"
+  else
+    composer global require "phpunit/phpunit=4.8.*"
+  fi
+- |
+  composer global require wp-coding-standards/wpcs
+  phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs
+- composer install
 script:
-  # - phpcs --standard=phpcs.ruleset.xml $(find . -name '*.php')
-  - phpunit
+- phpunit
