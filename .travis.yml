@@ -12,13 +12,18 @@ branches:
     - master
 
 php:
-  - 5.3
   - 5.6
+  - 7.1
+
+services:
+  - mysql
+
 
 env:
   - WP_VERSION=latest WP_MULTISITE=0
   - WP_VERSION=3.7 WP_MULTISITE=0
   - WP_VERSION=4.7.2 WP_MULTISITE=0
+  - WP_TESTS_DIR=/tmp/wordpress-tests-lib
 
 matrix:
   include:
