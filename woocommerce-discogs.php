@@ -24,6 +24,7 @@ define( __NAMESPACE__ . '\VERSION', '0.1.0' );
 define( __NAMESPACE__ . '\PLUGIN_NAME', 'woocommerce-discogs' );
 define( __NAMESPACE__ . '\PLUGIN_FILE', plugin_basename( __FILE__ ) );
 define( __NAMESPACE__ . '\PLUGIN_PATH', trailingslashit( plugin_dir_path( __FILE__ ) ) );
+define( __NAMESPACE__ . '\PLUGIN_URL', trailingslashit( plugin_dir_url( __FILE__ ) ) );
 
 // prevent direct access to file
 defined( 'ABSPATH' ) or exit;
