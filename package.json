@@ -1,6 +1,5 @@
-
 {
-  "name": "woocommerce-discogs",
+  "name": "woocommerce-record-store",
   "version": "0.1.0",
   "main": "Gruntfile.js",
   "author": "YOUR NAME HERE",
@@ -8,5 +7,28 @@
     "grunt": "~0.4.5",
     "grunt-wp-i18n": "~0.5.0",
     "grunt-wp-readme-to-markdown": "~1.0.0"
-  }
+  },
+  "description": "[![Build Status](https://travis-ci.com/aaltomeri/woocommerce-discogs.svg?token=xnusFssXy56u3zLepMKh&branch=master)](https://travis-ci.com/aaltomeri/woocommerce-discogs)",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "docker-compose -f .docker/docker-compose.yml up -d",
+    "stop": "docker-compose -f .docker/docker-compose.yml down",
+    "test": "vendor/bin/phpunit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomasmery/woocommerce-discogs.git"
+  },
+  "keywords": [
+    "woocommerce",
+    "record-store",
+    "discogs"
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thomasmery/woocommerce-discogs/issues"
+  },
+  "homepage": "https://github.com/thomasmery/woocommerce-discogs#readme"
 }
