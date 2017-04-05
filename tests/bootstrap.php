@@ -10,7 +10,7 @@ define( 'DATA_DIR', dirname( __FILE__ ) . '/data');
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 if ( ! $_tests_dir ) {
 	// local path to wp tests framework
-	$_tests_dir = '../../../Develop/wordpress-tests-lib';
+	$_tests_dir = '../../wordpress-tests-lib';
 }
 
 // Give access to tests_add_filter() function.
