@@ -10,3 +10,5 @@ vendor/*
 !vendor/acf/
 
 .env
+.vscode
+.data
