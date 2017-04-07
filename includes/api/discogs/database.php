@@ -15,16 +15,17 @@ class Database extends Resource {
 		parent::__construct();
 	}
 
-	public function get_artwork_uri( $artist, $title ) {
-		$release = $this->get_main_release($artist, $title);
+	public function get_artwork_uri( $params = [] ) {
+		$release = $this->get_main_release($params);
 		if ($release) {
+			print_r('release found');
 			return $release['images'][0]['uri'];
 		}
 		return Settings::$options['default_record_image_uri'];
 	}
 
-	public function get_genres( $artist, $title ) {
-		$release = $this->get_main_release($artist, $title);
+	public function get_genres( $params ) {
+		$release = $this->get_main_release($params);
 		$genres = [];
 		if ($release) {
 			return $release['genres'];
@@ -32,8 +33,8 @@ class Database extends Resource {
 		return $genres;
 	}
 
-	public function get_styles( $artist, $title ) {
-		$release = $this->get_main_release($artist, $title);
+	public function get_styles( $params ) {
+		$release = $this->get_main_release($params);
 		$styles = [];
 		if ($release) {
 			return $release['styles'];
@@ -41,8 +42,8 @@ class Database extends Resource {
 		return $styles;
 	}
 
-	public function get_tracklist( $artist, $title ) {
-		$release = $this->get_main_release($artist, $title);
+	public function get_tracklist( $params ) {
+		$release = $this->get_main_release($params);
 		$tracklist = [];
 		if ($release) {
 			return $release['tracklist'];
@@ -69,11 +70,13 @@ class Database extends Resource {
 
 	}
 
-	public function get_release($title, $artist = '', $type = 'release') {
+	public function get_release( $params ) {
+
+		$type = isset($params['type']) ? $params['type'] : 'release';
 
 		$response = $this->search( [
-			'q' => $artist,
-			'title' => $title,
+			'q' => $params['artist'],
+			'title' => $params['title'],
 			'type' => $type,
 		] );
 
@@ -97,19 +100,20 @@ class Database extends Resource {
 		return $release;
 	}
 
-	public function get_master_release($title, $artist = '') {
-		return $this->get_release($title, $artist, 'master');
+	public function get_master_release( $params ) {
+		$params['type'] = 'master';
+		return $this->get_release($params);
 	}
 
 	/**
 	* Try to get a Release - not necessarily a Master Release
 	* but try to get a Master Release first
 	*/
-	public function get_main_release($title, $artist = '') {
+	public function get_main_release( $params ) {
 
-		$release = $this->get_master_release($title, $artist);
+		$release = $this->get_master_release( $params );
 		if( ! $release ) {
-			$release = $this->get_release($title, $artist);
+			$release = $this->get_release( $params );
 		}
 		return $release;
 

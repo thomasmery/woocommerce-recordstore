@@ -17,6 +17,7 @@ abstract class Resource {
 
 		$this->client = ClientFactory::factory([
 			'defaults' => [
+				'debug' => false,
 				'query' => [
 					'key' => getenv('DISCOGS_API_CONSUMER_KEY'),
 					'secret' => getenv('DISCOGS_API_CONSUMER_SECRET'),

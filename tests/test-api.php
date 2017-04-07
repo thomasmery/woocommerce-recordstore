@@ -37,10 +37,16 @@ class APITest extends WP_UnitTestCase {
 
 		$discogs_api_db = new Database();
 
-		$results = $discogs_api_db->get_main_release( 'Hoarse', '16 Horsepower');
+		$results = $discogs_api_db->get_main_release([
+			'artist' => '16 Horsepower',
+			'title' => 'Hoarse',
+		]);
 		$this->assertEquals( 'https://api.discogs.com/releases/1823745', $results['main_release_url']);
 
-		$results = $discogs_api_db->get_main_release( 'Debut', 'Björk');
+		$results = $discogs_api_db->get_main_release([
+			'artist' => 'Björk',
+			'title' => 'Debut',
+		]);
 		$this->assertEquals( '34486', $results['id']);
 
 	}
@@ -52,12 +58,18 @@ class APITest extends WP_UnitTestCase {
 
 		$discogs_api_db = new Database();
 
-		$uri = $discogs_api_db->get_artwork_uri( 'Hoarse', '16 Horsepower' );
+		$uri = $discogs_api_db->get_artwork_uri([
+			'artist' => '16 Horsepower',
+			'title' => 'Hoarse',
+		]);
 		$this->assertEquals(
 			'https://api-img.discogs.com/VmUwWPaRh22XrcjmWEdpgHEPIgo=/fit-in/500x500/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-1823745-1245810570.jpeg.jpg',
 			$uri);
 
-		$uri = $discogs_api_db->get_artwork_uri( 'I Matter', 'Thomas Mery' );
+		$uri = $discogs_api_db->get_artwork_uri([
+			'artist' => 'Thomas Mery',
+			'title' => 'I Matter',
+		]);
 		$this->assertEquals(
 			'https://api-img.discogs.com/f6dHeYEBbxwRrEhly06Q5coDuio=/fit-in/174x174/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-1774021-1329680830.jpeg.jpg',
 			$uri);
@@ -72,7 +84,10 @@ class APITest extends WP_UnitTestCase {
 		$expected = [
 			'Rock',
 		];
-		$actual = $discogs_api_db->get_genres( 'Hoarse', '16 Horsepower' );
+		$actual = $discogs_api_db->get_genres([
+			'artist' => '16 Horsepower',
+			'title' => 'Hoarse',
+		]);
 		$this->assertEquals( $expected, $actual );
 	}
 
@@ -82,21 +97,30 @@ class APITest extends WP_UnitTestCase {
 			'Alternative Rock',
 			'Country Rock',
 		];
-		$actual = $discogs_api_db->get_styles( 'Hoarse', '16 Horsepower' );
+		$actual = $discogs_api_db->get_styles([
+			'artist' => '16 Horsepower',
+			'title' => 'Hoarse',
+		]);
 		$this->assertEquals( $expected, $actual );
 
 		$expected = [
 			'Art Rock',
         	'Chanson'
 		];
-		$actual = $discogs_api_db->get_styles( 'Fantaisie militaire', 'Alain bashung' );
+		$actual = $discogs_api_db->get_styles([
+			'artist' => 'Alain bashung',
+			'title' => 'Fantaisie militaire',
+		]);
 		$this->assertEquals( $expected, $actual );
 
 	}
 
 	function test_get_tracklist() {
 		$discogs_api_db = new Database();
-		$tracklist = $discogs_api_db->get_tracklist( 'Hoarse', '16 Horsepower' );
+		$tracklist = $discogs_api_db->get_tracklist([
+			'artist' => '16 Horsepower',
+			'title' => 'Hoarse',
+		]);
 
 		$expected = [
 			'duration' => '5:45',
