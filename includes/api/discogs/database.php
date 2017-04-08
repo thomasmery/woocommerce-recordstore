@@ -6,7 +6,7 @@
 
 namespace WC_Discogs\API\Discogs;
 
-use  \WC_Discogs\Admin\Settings;
+use WC_Discogs\Admin\Settings;
 use WC_Discogs\API\Discogs\Resource;
 
 class Database extends Resource {
@@ -17,11 +17,21 @@ class Database extends Resource {
 
 	public function get_artwork_uri( $params = [] ) {
 		$release = $this->get_main_release($params);
+		$uri = Settings::$options['default_record_image_uri'];
 		if ($release) {
-			print_r('release found');
-			return $release['images'][0]['uri'];
+			if( isset($release['images'][0]) ) {
+				$uri = $release['images'][0]['uri'];
+				print_r($release);
+				if( $uri === '' ) {
+					if ( isset( $release['main_release'] ) ) {
+						$release = $this->client->getRelease( [ 'id' => $release['main_release'] ] );
+						$uri = $release['images'][0]['uri'];
+					}
+				}
+			}
 		}
-		return Settings::$options['default_record_image_uri'];
+
+		return $uri;
 	}
 
 	public function get_genres( $params ) {

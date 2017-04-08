@@ -64,7 +64,8 @@ class APITest extends WP_UnitTestCase {
 		]);
 		$this->assertEquals(
 			'https://api-img.discogs.com/VmUwWPaRh22XrcjmWEdpgHEPIgo=/fit-in/500x500/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-1823745-1245810570.jpeg.jpg',
-			$uri);
+			$uri
+		);
 
 		$uri = $discogs_api_db->get_artwork_uri([
 			'artist' => 'Thomas Mery',
@@ -72,7 +73,19 @@ class APITest extends WP_UnitTestCase {
 		]);
 		$this->assertEquals(
 			'https://api-img.discogs.com/f6dHeYEBbxwRrEhly06Q5coDuio=/fit-in/174x174/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-1774021-1329680830.jpeg.jpg',
-			$uri);
+			$uri
+		);
+
+		// master release has no artwork
+		// we should get the main_release test_get_artwork_uri
+		$uri = $discogs_api_db->get_artwork_uri([
+			'artist' => 'Nick Drake',
+			'title' => 'Five Leaves Left',
+		]);
+		$this->assertEquals(
+			'https://api-img.discogs.com/tg4I1j1F2lPRu-9Pt_uwjcO1Cxg=/fit-in/394x394/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-467112-1258034866.jpeg.jpg',
+			$uri
+		);
 	}
 
 	/**
