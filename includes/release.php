@@ -44,7 +44,12 @@ class Release {
 	* @return int the ID of the attachment used as artwork for this Release
 	*/
 	public function set_artwork( $force = false ) {
-		// get Artwork URI
+
+		// refresh post data
+		if( $force ) {
+			$this->post = get_post( $this->post->ID );
+		}
+
 		$discogs_db = new \WC_Discogs\API\Discogs\Database();
 
 		$artist = $this->get_artists();
@@ -75,8 +80,10 @@ class Release {
 
 		// we don't want to fetch unecessarily
 		// unless we really insist ...
-		if( $attachment_id = $this->has_artwork() && ! $force ) {
-			return $attachment_id;
+		if( ! $force ) {
+			if ( $attachment_id = $this->has_artwork() ) {
+			 	return $attachment_id;
+			}
 		}
 
 		// Get Artwork URI from external source
@@ -101,9 +108,7 @@ class Release {
 		// actually attach Media
 		if( ! $attachment_id ) {
 			$attachment_id = Media::attach_from_url( $artwork_uri, $this->post->ID, $artwork_wp_title );
-			print_r($attachment_id);
 		}
-
 		return $attachment_id;
 	}
 

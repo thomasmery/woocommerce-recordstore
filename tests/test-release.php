@@ -120,6 +120,24 @@ class ReleaseTest extends WP_UnitTestCase {
 			preg_match("/R-1823745-1245810570/", $attachment_url)
 		);
 
+		// test force update artwork
+		$update = wp_update_post([ 'ID' => $release->post->ID, 'post_title' => 'Olden'], true);
+		if (is_wp_error($update)) {
+			$errors = $update->get_error_messages();
+			foreach ($errors as $error) {
+				echo $error;
+			}
+		}
+		$attachment_id = $release->set_artwork( true );
+		$attachment_url = wp_get_attachment_image_url( $attachment_id );
+		print_r($attachment_url);
+		$this->assertEquals(
+			1,
+			preg_match("/R-1308150-1208375805/", $attachment_url)
+		);
+
+
+
 	}
 
 	function test_has_artwork() {
