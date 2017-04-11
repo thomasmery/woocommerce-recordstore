@@ -71,4 +71,24 @@ class Media {
 		return $attachment;
 	}
 
+	/**
+	* will try to find a media in the WP library
+	* based on the media filename
+	* @param string a path or url
+	*/
+	public static function get_attachment_id_by_filename( $path ) {
+		global $wpdb;
+
+		$image_path_parts = explode('/', $path );
+		$image_filename = $image_path_parts[ count($image_path_parts) - 1];
+
+		$attachments_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM $wpdb->posts WHERE guid LIKE '%s';",
+				"%$image_filename%"
+			)
+		);
+		return isset( $attachments_ids[0] ) ? $attachments_ids[0] : null ;
+	}
+
 }
