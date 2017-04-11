@@ -12,3 +12,4 @@ vendor/*
 .env
 .vscode
 .data
+/npm-debug.log

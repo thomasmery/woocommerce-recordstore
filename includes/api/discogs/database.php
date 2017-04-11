@@ -21,7 +21,6 @@ class Database extends Resource {
 		if ($release) {
 			if( isset($release['images'][0]) ) {
 				$uri = $release['images'][0]['uri'];
-				print_r($release);
 				if( $uri === '' ) {
 					if ( isset( $release['main_release'] ) ) {
 						$release = $this->client->getRelease( [ 'id' => $release['main_release'] ] );
