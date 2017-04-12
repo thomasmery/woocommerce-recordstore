@@ -15,7 +15,7 @@ class Database extends Resource {
 		parent::__construct();
 	}
 
-	public function get_artwork_uri( $params = [] ) {
+	public function get_artwork_uri( array $params = [] ) {
 		$release = $this->get_main_release($params);
 		$uri = Settings::$options['default_record_image_uri'];
 		if ($release) {
@@ -33,7 +33,7 @@ class Database extends Resource {
 		return $uri;
 	}
 
-	public function get_genres( $params ) {
+	public function get_genres( array $params ) {
 		$release = $this->get_main_release($params);
 		$genres = [];
 		if ($release) {
@@ -42,7 +42,7 @@ class Database extends Resource {
 		return $genres;
 	}
 
-	public function get_styles( $params ) {
+	public function get_styles( array $params ) {
 		$release = $this->get_main_release($params);
 		$styles = [];
 		if ($release) {
@@ -51,7 +51,7 @@ class Database extends Resource {
 		return $styles;
 	}
 
-	public function get_tracklist( $params ) {
+	public function get_tracklist( array $params ) {
 		$release = $this->get_main_release($params);
 		$tracklist = [];
 		if ($release) {
@@ -64,7 +64,7 @@ class Database extends Resource {
 	* Gettin' releases
 	*******************/
 
-	public function search( $params = [] ) {
+	public function search( array $params = [] ) {
 
 		try {
 
@@ -79,7 +79,7 @@ class Database extends Resource {
 
 	}
 
-	public function get_release( $params ) {
+	public function get_release( array $params ) {
 
 		$type = isset($params['type']) ? $params['type'] : 'release';
 
@@ -109,7 +109,7 @@ class Database extends Resource {
 		return $release;
 	}
 
-	public function get_master_release( $params ) {
+	public function get_master_release( array $params ) {
 		$params['type'] = 'master';
 		return $this->get_release($params);
 	}
@@ -118,7 +118,7 @@ class Database extends Resource {
 	* Try to get a Release - not necessarily a Master Release
 	* but try to get a Master Release first
 	*/
-	public function get_main_release( $params ) {
+	public function get_main_release( array $params ) {
 
 		$release = $this->get_master_release( $params );
 		if( ! $release ) {
