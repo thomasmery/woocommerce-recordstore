@@ -125,15 +125,23 @@ class ReleaseTest extends WP_UnitTestCase {
 		$second_attachment_id = $release->set_artwork();
 		$this->assertEquals( $first_attachment_id, $second_attachment_id);
 
+
+
 		// test correct artwork has been attached to Release
 		$release = $this->_create_release( '16 Horsepower', 'Hoarse' );
 		$first_attachment_id = $release->set_artwork();
 		$attachment_url = wp_get_attachment_image_url( $first_attachment_id );
 		$this->assertEquals(
 			1,
-			preg_match("/R-1823745-1245810570/", $attachment_url)
+			preg_match("/16-horsepower-hoarse/", $attachment_url)
 		);
 		$post_thumbnail_id = get_post_thumbnail_id( $release->post->ID );
+
+
+
+		// remove file rename for the following test
+		// so we'll expect the original filemane
+		remove_filter( self::$__NAMESPACE__ . '_rename_file_on_attach_from_url', self::$__NAMESPACE__ . '\default_media_file_rename' );
 
 		// test force update artwork
 		$update = wp_update_post([ 'ID' => $release->post->ID, 'post_title' => 'Olden'], true);

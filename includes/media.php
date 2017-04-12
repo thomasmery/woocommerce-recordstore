@@ -29,7 +29,25 @@ class Media {
 			}
 
 			$file_array = array();
-			$file_array['name'] = basename( $matches[0] );
+
+			/**
+			* the filename
+			*
+			* we allow to change the originale filename that is obtained from the remote source
+			* by default this filename will be the artist-title (for seo & readability purposes)
+			* this is done by filtering in the Setup constructor of this plugin
+			* users can deactivate this default by removing the filter
+			* or customize the behaviour
+			*  - remove_filter( 'WC_Record_Store_rename_file_on_attach_from_url', 'WC_Record_Store\default_media_file_rename' );
+			*  - add_filter
+			*/
+			if( $file != self::$default_artwork_image_uri ) {
+				$file_array['name'] = apply_filters( __NAMESPACE__ . '_rename_file_on_attach_from_url', basename( $matches[0] ) , $post_id );
+			}
+			else {
+				$file_array['name'] = basename( $matches[0] );
+			}
+
 
 			// Download file to temp location.
 			$file_array['tmp_name'] = download_url( $file );

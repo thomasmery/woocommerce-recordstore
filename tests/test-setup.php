@@ -84,4 +84,29 @@ class SetupTest extends WP_UnitTestCase {
 		);
 	}
 
+
+	// default media rename
+	function test_default_media_rename() {
+
+		$taxonomy = SetupTest::$__NAMESPACE__ . '_artist';
+
+		$artist = 'Nick Drake';
+		$title = 'Five Leaves Left';
+
+		$post_id = $this->factory->post->create();
+
+		$artists_terms = [];
+		$artists_terms[0] = 'Nick Drake';
+		wp_set_object_terms( $post_id, $artists_terms, $taxonomy , false );
+
+		wp_update_post( [ 'ID' => $post_id, 'post_title' => $title ]);
+		$post = get_post( $post_id );
+		$this->assertEquals( $title, $post->post_title);
+
+		$original_filename = '8437506-RFDFD.jpg';
+		$expected_filename = 'nick-drake-five-leaves-left.jpg';
+		$renamed_filename = call_user_func( SetupTest::$__NAMESPACE__ . '\default_media_file_rename', $original_filename, $post_id);
+		$this->assertEquals( $expected_filename, $renamed_filename );
+	}
+
 }
