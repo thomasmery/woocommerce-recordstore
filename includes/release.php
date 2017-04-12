@@ -44,13 +44,22 @@ class Release {
 	* @return int the ID of the attachment used as artwork for this Release
 	*/
 	public function set_artwork( $force = false ) {
+		global $wpdb;
+
+		// detach featured image from Release's post
+		$thumbnail_id = get_post_thumbnail_id( $this->post->ID );
+		if( $thumbnail_id ) {
+			$wpdb->update(
+				$wpdb->posts,
+				[ 'post_parent' => 0 ],
+				[ 'ID' => $thumbnail_id ]
+			);
+		}
 
 		// refresh post data
 		if( $force ) {
 			$this->post = get_post( $this->post->ID );
 		}
-
-		$discogs_db = new \WC_Discogs\API\Discogs\Database();
 
 		$artist = $this->get_artists();
 		$title = $this->post->post_title;
@@ -72,8 +81,12 @@ class Release {
 		// we don't want to fetch from external source
 		// if we already have an image in the Media Library
 		// with a name that corresponds to the artwork we're looking for
-		if ( ( $attachment = Media::get_attachment_by_title( $artwork_wp_title ) )
-			&& ! $force ) {
+		if ( $attachment = Media::get_attachment_by_title( $artwork_wp_title ) ) {
+			$wpdb->update(
+				$wpdb->posts,
+				[ 'post_parent' => $this->post->ID ],
+				[ 'ID' => $attachment->ID ]
+			);
 			set_post_thumbnail( $this->post->ID, $attachment->ID );
 			return $attachment->ID;
 		}
@@ -87,7 +100,8 @@ class Release {
 		}
 
 		// Get Artwork URI from external source
-		$artwork_uri = $discogs_db->get_artwork_uri( [
+		$external_resource = new \WC_Discogs\API\Discogs\Database();
+		$artwork_uri = $external_resource->get_artwork_uri( [
 			'artist' => $artist,
 			'title' => $title,
 		] );
@@ -108,6 +122,7 @@ class Release {
 		// actually attach Media
 		if( ! $attachment_id ) {
 			$attachment_id = Media::attach_from_url( $artwork_uri, $this->post->ID, $artwork_wp_title );
+			set_post_thumbnail( $this->post->ID, $attachment_id );
 		}
 		return $attachment_id;
 	}
