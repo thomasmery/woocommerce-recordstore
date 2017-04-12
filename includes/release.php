@@ -86,7 +86,6 @@ class Release {
 		if ($this->post->post_type === 'product_variation') {
 			$_parent = get_post($this->post->post_parent);
 			$title = $_parent->post_title;
-			$artist = $release->get_artists();
 		}
 
 		// Attachment title
