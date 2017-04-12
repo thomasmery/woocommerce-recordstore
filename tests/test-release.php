@@ -53,6 +53,20 @@ class ReleaseTest extends WP_UnitTestCase {
 
 	}
 
+	function test_set_genres_and_styles() {
+
+		$genre_taxonomy = self::$__NAMESPACE__ . '_genre';
+		$style_taxonomy = self::$__NAMESPACE__ . '_style';
+
+		$release = $this->_create_release( 'The Jesus and Mary Chain', 'Psychocandy' );
+		$release->set_genres_and_styles();
+		$genres_names = wp_get_object_terms( $release->post->ID, $genre_taxonomy, [ 'fields' => 'names' ]);
+		$this->assertEquals( [ 'Rock' ], $genres_names );
+		$styles_names = wp_get_object_terms( $release->post->ID, $style_taxonomy, [ 'fields' => 'names' ]);
+		$this->assertEquals( [ 'Noise' ], $styles_names );
+
+	}
+
 	function test_set_artwork()  {
 
 		// we need to setup a few settings like the default place holder uri
