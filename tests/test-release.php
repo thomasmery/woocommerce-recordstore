@@ -113,12 +113,13 @@ class ReleaseTest extends WP_UnitTestCase {
 
 		// test correct artwork has been attached to Release
 		$release = $this->_create_release( '16 Horsepower', 'Hoarse' );
-		$attachment_id = $release->set_artwork();
-		$attachment_url = wp_get_attachment_image_url( $attachment_id );
+		$first_attachment_id = $release->set_artwork();
+		$attachment_url = wp_get_attachment_image_url( $first_attachment_id );
 		$this->assertEquals(
 			1,
 			preg_match("/R-1823745-1245810570/", $attachment_url)
 		);
+		$post_thumbnail_id = get_post_thumbnail_id( $release->post->ID );
 
 		// test force update artwork
 		$update = wp_update_post([ 'ID' => $release->post->ID, 'post_title' => 'Olden'], true);
@@ -128,14 +129,23 @@ class ReleaseTest extends WP_UnitTestCase {
 				echo $error;
 			}
 		}
-		$attachment_id = $release->set_artwork( true );
-		$attachment_url = wp_get_attachment_image_url( $attachment_id );
-		print_r($attachment_url);
+		$second_attachment_id = $release->set_artwork( true );
+		$attachment_url = wp_get_attachment_image_url( $second_attachment_id );
+		// correct url
 		$this->assertEquals(
 			1,
 			preg_match("/R-1308150-1208375805/", $attachment_url)
 		);
-
+		// first image has been detached & second has been attached
+		$attached_images = get_attached_media( 'image',  $release->post );
+		foreach( $attached_images as $attached_image) {
+			$this->assertFalse( $attached_image->ID ==  $first_attachment_id, 'Previously attached image should be detached');
+			$this->assertTrue( $attached_image->ID ==  $second_attachment_id, 'Newly attached image should be attached');
+		}
+		// featured image switch
+		$post_thumbnail_id = get_post_thumbnail_id( $release->post->ID );
+		$this->assertFalse( $post_thumbnail_id == $first_attachment_id, 'Previous image should not be featured image');
+		$this->assertTrue( $post_thumbnail_id == $second_attachment_id, 'New image should be featured image');
 
 
 	}
