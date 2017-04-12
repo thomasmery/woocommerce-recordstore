@@ -58,6 +58,17 @@ function default_media_file_rename( $filename, $post_id ) {
 		wp_get_object_terms( $post_id, __NAMESPACE__ . '_artist', [ 'fields' => 'names' ] )
 	);
 	$title = $post->post_title;
+
+	// in case of a variation we need to get title from the parent product
+	// because the variation title is of the form 'Variation #nnn for ... '
+	// or 'Title, Attribyte 1: value, Atribute 2: value ... ' in WC 3.0
+	// and this won't give us a nice filename ...
+	// this is needed because in some (rare) cases we will try to get the artwork using the variation first
+	if ($post->post_type === 'product_variation') {
+		$_parent = get_post($post->post_parent);
+		$title = $_parent->post_title;
+	}
+
 	$artwork_wp_title = "{$artist} - {$title}";
 	return sanitize_title( $artwork_wp_title ) . '.' . $extension;
 }

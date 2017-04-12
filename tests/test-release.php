@@ -95,7 +95,8 @@ class ReleaseTest extends WP_UnitTestCase {
 		// TODO
 		// test product/post has parent w/ correct title
 
-		// test not fetching artwork if an image named "Artist + Title"
+
+		// test not fetching artwork if an image named "Artist - Title"
 		// exists in the Media Library
 		$attachment_id = $this->_make_attachment( $upload );
 		$attachment_title = $release->get_artists() . ' - ' . $release->post->post_title;
@@ -127,7 +128,8 @@ class ReleaseTest extends WP_UnitTestCase {
 
 
 
-		// test correct artwork has been attached to Release
+		// test that correct artwork has been attached to Release
+		// the filename is transformed with the default_media_file_rename function
 		$release = $this->_create_release( '16 Horsepower', 'Hoarse' );
 		$first_attachment_id = $release->set_artwork();
 		$attachment_url = wp_get_attachment_image_url( $first_attachment_id );
@@ -136,8 +138,6 @@ class ReleaseTest extends WP_UnitTestCase {
 			preg_match("/16-horsepower-hoarse/", $attachment_url)
 		);
 		$post_thumbnail_id = get_post_thumbnail_id( $release->post->ID );
-
-
 
 		// remove file rename for the following test
 		// so we'll expect the original filemane
