@@ -32,6 +32,20 @@ class Release {
 	}
 
 	/**
+	* will fetch genres and styles from an external API
+	*/
+	public function set_genres_and_styles() {
+		// get from discogs
+		$discogs_db = new \WC_Discogs\API\Discogs\Database();
+		$genres = $discogs_db->get_genres( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
+		$styles = $discogs_db->get_styles( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
+
+		// add to product
+		wp_add_object_terms( $this->post->ID, $genres, __NAMESPACE__ . '_genre');
+		wp_add_object_terms( $this->post->ID, $styles, __NAMESPACE__ . '_style');
+	}
+
+	/**
 	* wrapper for getting WC product image
 	*/
 	public function get_artwork() {
