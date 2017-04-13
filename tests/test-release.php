@@ -31,13 +31,12 @@ class ReleaseTest extends WP_UnitTestCase {
 
 		$artists_terms = [];
 		$artists_terms[0] = 'Nick Drake';
-		wp_set_object_terms( $post_id, $artists_terms, $taxonomy , false );
 
-		$release = new Release( $post_id );
+		$release = $this->_create_release( $artists_terms[0] );
 		$this->assertEquals( $artists_terms[0], $release->get_artists() );
 
 		$artists_terms[1] = 'The books';
-		wp_set_object_terms( $post_id, $artists_terms, $taxonomy , false );
+		wp_set_object_terms( $release->post->ID, $artists_terms, $taxonomy , false );
 
 		$this->assertEquals( implode($separator, $artists_terms), $release->get_artists( $separator ) );
 
@@ -45,10 +44,7 @@ class ReleaseTest extends WP_UnitTestCase {
 
 	function test_get_has_associated_post() {
 
-		$post_id = $this->factory->post->create();
-		$this->assertNotNull($post_id);
-
-		$release = new Release( $post_id );
+		$release = $this->_create_release();
 		$this->assertNotNull($release->post->ID);
 
 	}
@@ -175,8 +171,8 @@ class ReleaseTest extends WP_UnitTestCase {
 	function test_has_artwork() {
 
 		// does not have artwork
-		$post_id = $this->factory->post->create();
-		$release = new Release( $post_id );
+		$release = $this->_create_release();
+		$post_id = $release->post->ID;
 		$this->assertFalse($release->has_artwork());
 
 		// has artwork
@@ -186,7 +182,8 @@ class ReleaseTest extends WP_UnitTestCase {
 		$this->assertTrue( empty($upload['error']) );
 
 		$post_id = $this->factory->post->create();
-		$release = new Release( $post_id );
+		$release =  $this->_create_release();
+		$post_id = $release->post->ID;
 		$attachment_id = $this->_make_attachment($upload, $post_id);
 		$this->assertNotNull($attachment_id);
 		set_post_thumbnail($post_id, $attachment_id);
@@ -194,7 +191,8 @@ class ReleaseTest extends WP_UnitTestCase {
 
 		// has featured image but it is the default placeholder
 		$post_id = $this->factory->post->create();
-		$release = new Release( $post_id );
+		$release =  $this->_create_release();
+		$post_id = $release->post->ID;
 		$attachment_id = Media::attach_from_url(Media::$default_artwork_image_uri, $post_id);
 		$this->assertTrue(is_int($attachment_id));
 		$image_infos = wp_get_attachment_image_src($attachment_id, null);
@@ -221,7 +219,9 @@ class ReleaseTest extends WP_UnitTestCase {
 
 		$taxonomy = self::$__NAMESPACE__ . '_artist';
 
-		$post_id = $this->factory->post->create();
+		$product = WC_Helper_Product::create_simple_product();
+
+		$post_id = $product->get_id();
 		$this->assertNotNull($post_id);
 
 		$artists_terms = [];

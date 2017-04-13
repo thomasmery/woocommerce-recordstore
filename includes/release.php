@@ -21,7 +21,7 @@ class Release {
 		$post = get_post( $post_id );
 
 		// safeguard
-		// a Release is a Parent Product
+		// a Release can only be a WooCommerce Product (excluding variations)
 		if( $post->post_type !== 'product') {
 			throw new \Exception(
 				__(
