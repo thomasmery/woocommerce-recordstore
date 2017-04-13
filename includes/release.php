@@ -17,7 +17,21 @@ class Release {
 	public $post;
 
 	public function __construct( $post_id ) {
-		$this->post = get_post( $post_id );
+
+		$post = get_post( $post_id );
+
+		// safeguard
+		// a Release is a Parent Product
+		if( $post->post_type !== 'product') {
+			throw new \Exception(
+				__(
+					"Warning: You can not create a Release for post ID $post_id of type $post->post_type. A Release can only be of type _product_",
+					'wc-record-store'
+				)
+			);
+		}
+
+		$this->post = $post;
 	}
 
 	/**
@@ -80,14 +94,6 @@ class Release {
 
 		$attachment_id = null;
 
-		// in case of a variation we need to get title from the parent product
-		// because the variation title is of the form 'Variation #nnn for ... '
-		// and this won't work to get the artwork
-		if ($this->post->post_type === 'product_variation') {
-			$_parent = get_post($this->post->post_parent);
-			$title = $_parent->post_title;
-		}
-
 		// Attachment title
 		$artwork_wp_title = "{$artist} - {$title}";
 
@@ -101,6 +107,9 @@ class Release {
 				[ 'ID' => $attachment->ID ]
 			);
 			set_post_thumbnail( $this->post->ID, $attachment->ID );
+
+			$this->set_variations_artwork( $attachment->ID );
+
 			return $attachment->ID;
 		}
 
@@ -121,7 +130,7 @@ class Release {
 
 		// if the artwork uri is the uri of the default placeholder
 		// we don't want to create a new attachment each time
-		// so we look for the image filenmame and use the attachment if it is found
+		// so we look for the image filename and use the attachment if it is found
 		if ( $artwork_uri === Media::$default_artwork_image_uri ) {
 			// we also set a generic name in case the default place holder does not exist and is created
 			$artwork_wp_title = "Default Placeholder";
@@ -135,9 +144,26 @@ class Release {
 		// actually attach Media
 		if( ! $attachment_id ) {
 			$attachment_id = Media::attach_from_url( $artwork_uri, $this->post->ID, $artwork_wp_title );
-			set_post_thumbnail( $this->post->ID, $attachment_id );
 		}
+
+		set_post_thumbnail( $this->post->ID, $attachment_id );
+		$this->set_variations_artwork( $attachment_id );
+
 		return $attachment_id;
+	}
+
+	/**
+	* will set a variable products
+	*/
+	public function set_variations_artwork( $attachment_id ) {
+		// variations have same image by default
+		$wc_product = wc_get_product( $this->post->ID );
+		if( $wc_product && 'variable' === $wc_product->get_type() ) {
+			$variations_ids = $wc_product->get_children();
+			foreach( $variations_ids as $variation_id ) {
+				set_post_thumbnail( $variation_id, $attachment_id );
+			}
+		}
 	}
 
 	/**
