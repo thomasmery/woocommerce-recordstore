@@ -12,6 +12,12 @@
     }
   ],
   "type": "wordpress-plugin",
+  "repositories":[
+      {
+          "type":"composer",
+          "url":"https://wpackagist.org"
+      }
+  ],
   "require": {
     "php": ">=5.4",
     "composer/installers": "v1.0.6",
@@ -22,6 +28,12 @@
         "classmap": [ "includes/" ]
     },
   "require-dev": {
-    "phpunit/phpunit": "5.7"
+    "phpunit/phpunit": "5.7",
+    "wpackagist-plugin/woocommerce":">=3.0"
+  },
+   "extra": {
+      "installer-paths": {
+          "vendor/{$name}/": ["wpackagist-plugin/woocommerce"]
+      }
   }
 }
