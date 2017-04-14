@@ -21,7 +21,7 @@ class Release {
 		$post = get_post( $post_id );
 
 		// safeguard
-		// a Release can only be a WooCommerce Product (excluding variations)
+		// a Release is a Parent Product
 		if( $post->post_type !== 'product') {
 			throw new \Exception(
 				__(
@@ -95,22 +95,27 @@ class Release {
 		$attachment_id = null;
 
 		// Attachment title
+		// @TODO make this a method
 		$artwork_wp_title = "{$artist} - {$title}";
 
 		// we don't want to fetch from external source
 		// if we already have an image in the Media Library
 		// with a name that corresponds to the artwork we're looking for
 		if ( $attachment = Media::get_attachment_by_title( $artwork_wp_title ) ) {
+			$attachment_id = $attachment->ID;
+			// attach Media to Post
 			$wpdb->update(
 				$wpdb->posts,
 				[ 'post_parent' => $this->post->ID ],
-				[ 'ID' => $attachment->ID ]
+				[ 'ID' => $attachment_id ]
 			);
-			set_post_thumbnail( $this->post->ID, $attachment->ID );
+			// Featured image
+			set_post_thumbnail( $this->post->ID, $attachment_id );
 
-			$this->set_variations_artwork( $attachment->ID );
+			// by default we set the parent product image to be the variations image
+			$this->set_variations_artwork();
 
-			return $attachment->ID;
+			return $attachment_id;
 		}
 
 		// we don't want to fetch unecessarily
@@ -141,13 +146,13 @@ class Release {
 			$attachment_id = Media::get_attachment_id_by_filename( $default_image_basename );
 		}
 
-		// actually attach Media
+		// actually attach Media from remote service
 		if( ! $attachment_id ) {
 			$attachment_id = Media::attach_from_url( $artwork_uri, $this->post->ID, $artwork_wp_title );
 		}
 
 		set_post_thumbnail( $this->post->ID, $attachment_id );
-		$this->set_variations_artwork( $attachment_id );
+		$this->set_variations_artwork();
 
 		return $attachment_id;
 	}
@@ -155,7 +160,10 @@ class Release {
 	/**
 	* will set a variable products
 	*/
-	public function set_variations_artwork( $attachment_id ) {
+	public function set_variations_artwork() {
+
+		$attachment_id = get_post_thumbnail_id( $this->post->ID );
+
 		// variations have same image by default
 		$wc_product = wc_get_product( $this->post->ID );
 		if( $wc_product && 'variable' === $wc_product->get_type() ) {
