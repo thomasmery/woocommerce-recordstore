@@ -6,8 +6,6 @@ engines:
       languages:
       - javascript
       - php
-  eslint:
-    enabled: true
   fixme:
     enabled: true
   phpmd:
