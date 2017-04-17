@@ -61,9 +61,10 @@ class Release {
 
 	/**
 	* wrapper for getting WC product image
+	* return WP_Post a WP attachment
 	*/
 	public function get_artwork() {
-
+		return get_post( get_post_thumbnail_id( $this->post->ID ) );
 	}
 
 	/**

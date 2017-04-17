@@ -181,7 +181,6 @@ class ReleaseTest extends WP_UnitTestCase {
 		$upload = wp_upload_bits(basename($filename), null, $contents);
 		$this->assertTrue( empty($upload['error']) );
 
-		$post_id = $this->factory->post->create();
 		$release =  $this->_create_release();
 		$post_id = $release->post->ID;
 		$attachment_id = $this->_make_attachment($upload, $post_id);
@@ -208,6 +207,23 @@ class ReleaseTest extends WP_UnitTestCase {
 			)
 		);
 		$this->assertFalse($release->has_artwork());
+
+	}
+
+	public function test_get_artwork() {
+
+		$filename = ( DATA_DIR . '/images/test-artwork.jpg' );
+		$contents = file_get_contents($filename);
+		$upload = wp_upload_bits(basename($filename), null, $contents);
+		$this->assertTrue( empty($upload['error']) );
+
+		$release = $this->_create_release();
+		$post_id = $release->post->ID;
+		$attachment_id = $this->_make_attachment($upload, $post_id);
+		$this->assertNotNull($attachment_id);
+		set_post_thumbnail($post_id, $attachment_id);
+		$attachment = get_post( $attachment_id );
+		$this->assertEquals($attachment, $release->get_artwork());
 
 	}
 
