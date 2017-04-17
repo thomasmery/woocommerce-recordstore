@@ -35,10 +35,10 @@ class ReleaseTest extends WP_UnitTestCase {
 		$release = $this->_create_release( $artists_terms[0] );
 		$this->assertEquals( $artists_terms[0], $release->get_artists() );
 
+		$same_release_but_different_occurence = new Release( $release->post->ID );
 		$artists_terms[1] = 'The books';
-		wp_set_object_terms( $release->post->ID, $artists_terms, $taxonomy , false );
-
-		$this->assertEquals( implode($separator, $artists_terms), $release->get_artists( $separator ) );
+		wp_set_object_terms( $same_release_but_different_occurence->post->ID, $artists_terms, $taxonomy , false );
+		$this->assertEquals( implode($separator, $artists_terms), $same_release_but_different_occurence->get_artists( $separator ) );
 
 	}
 

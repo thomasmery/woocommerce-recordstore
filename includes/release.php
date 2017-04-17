@@ -39,10 +39,14 @@ class Release {
 	* @param $separator
 	*/
 	public function get_artists( $separator = ', ') {
-		return implode(
-			$separator,
-			wp_get_object_terms( $this->post->ID, __NAMESPACE__ . '_artist', [ 'fields' => 'names' ] )
-		);
+		if( ! $this->_artists ) {
+			$this->_artists = implode(
+				$separator,
+				wp_get_object_terms( $this->post->ID, __NAMESPACE__ . '_artist', [ 'fields' => 'names' ] )
+			);
+		}
+
+		return $this->_artists;
 	}
 
 	/**
