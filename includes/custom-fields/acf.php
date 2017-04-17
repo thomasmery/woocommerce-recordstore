@@ -6,21 +6,17 @@ namespace WC_Discogs;
 function acf_init() {
 
 	/**
-	* ARTISTS
+	* Music Release fields
 	**********/
 	if( function_exists('acf_add_local_field_group') ):
-
-		/**
-		* MUsic Release fields
-		*/
 
 		acf_add_local_field_group(array (
 			'key' => 'group_58c27d720d372',
 			'title' => 'Music Release Fields',
 			'fields' => array (
 				array (
-					'key' => 'field_58dcff1fda49a',
-					'label' => 'Artists, Genres & Styles',
+					'key' => 'field_58f4b0df55415',
+					'label' => 'Artist(s)',
 					'name' => '',
 					'type' => 'tab',
 					'instructions' => '',
@@ -43,11 +39,11 @@ function acf_init() {
 					'required' => 0,
 					'conditional_logic' => 0,
 					'wrapper' => array (
-						'width' => '33%',
+						'width' => '',
 						'class' => '',
 						'id' => '',
 					),
-					'taxonomy' => __NAMESPACE__ . '_artist',
+					'taxonomy' => 'WC_Discogs_artist',
 					'field_type' => 'multi_select',
 					'allow_null' => 0,
 					'add_term' => 1,
@@ -55,6 +51,22 @@ function acf_init() {
 					'load_terms' => 1,
 					'return_format' => 'id',
 					'multiple' => 0,
+				),
+				array (
+					'key' => 'field_58dcff1fda49a',
+					'label' => 'Genres, Styles',
+					'name' => '',
+					'type' => 'tab',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array (
+						'width' => '',
+						'class' => '',
+						'id' => '',
+					),
+					'placement' => 'left',
+					'endpoint' => 0,
 				),
 				array (
 					'key' => 'field_58c97937f382d',
@@ -69,7 +81,7 @@ function acf_init() {
 						'class' => '',
 						'id' => '',
 					),
-					'taxonomy' => __NAMESPACE__ . '_genre',
+					'taxonomy' => 'WC_Discogs_genre',
 					'field_type' => 'multi_select',
 					'allow_null' => 0,
 					'add_term' => 1,
@@ -91,7 +103,7 @@ function acf_init() {
 						'class' => '',
 						'id' => '',
 					),
-					'taxonomy' => __NAMESPACE__ . '_style',
+					'taxonomy' => 'WC_Discogs_style',
 					'field_type' => 'multi_select',
 					'allow_null' => 0,
 					'add_term' => 1,
@@ -191,6 +203,43 @@ function acf_init() {
 						),
 					),
 				),
+				array (
+					'key' => 'field_58f4b5cf04093',
+					'label' => 'Other infos',
+					'name' => '',
+					'type' => 'tab',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array (
+						'width' => '',
+						'class' => '',
+						'id' => '',
+					),
+					'placement' => 'left',
+					'endpoint' => 0,
+				),
+				array (
+					'key' => 'field_58f4b06155414',
+					'label' => 'Year of release',
+					'name' => 'release_date_year',
+					'type' => 'number',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array (
+						'width' => '100',
+						'class' => '',
+						'id' => '',
+					),
+					'default_value' => '',
+					'placeholder' => '',
+					'prepend' => '',
+					'append' => '',
+					'min' => '',
+					'max' => '',
+					'step' => '',
+				),
 			),
 			'location' => array (
 				array (
@@ -211,7 +260,7 @@ function acf_init() {
 			'description' => '',
 		));
 
-	endif;
+		endif;
 
 }
 

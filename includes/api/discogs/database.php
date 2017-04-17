@@ -60,6 +60,14 @@ class Database extends Resource {
 		return $tracklist;
 	}
 
+	public function get_year( array $params ) {
+		$release = $this->get_main_release($params);
+		if ($release) {
+			return $release['year'];
+		}
+		return null;
+	}
+
 	/**
 	* Gettin' releases
 	*******************/

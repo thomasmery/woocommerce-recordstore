@@ -11,6 +11,27 @@ use WC_Discogs\API\Discogs\Image;
 class Release {
 
 	/**
+	* @var string
+	*/
+	private $_artists;
+
+	/**
+	* @var
+	*/
+	private $genres;
+
+	/**
+	* @var $styles
+	*/
+	private $styles;
+
+	/**
+	* @var $_release_date_year
+	*/
+	private $_release_date_year;
+
+
+	/**
 	* a WP Post the record is associated with
 	* @var $post
 	*/
@@ -62,6 +83,33 @@ class Release {
 		wp_add_object_terms( $this->post->ID, $genres, __NAMESPACE__ . '_genre');
 		wp_add_object_terms( $this->post->ID, $styles, __NAMESPACE__ . '_style');
 	}
+
+
+	/**
+	* Will fetch Year of release from en external API
+	* and set the appropriate custom field
+	*/
+	public function get_year_of_release() {
+
+		if( ! $this->_release_date_year ) {
+			$this->_release_date_year = get_field('release_date_year', $this->post->ID);
+		}
+
+		return $this->_release_date_year;
+	}
+
+	/**
+	* Will fetch Year of release from en external API
+	* and set the appropriate custom field
+	*/
+	public function set_year_of_release() {
+		// get from discogs
+		$discogs_db = new \WC_Discogs\API\Discogs\Database();
+		$release_date_year = $discogs_db->get_year( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
+
+		update_field('release_date_year', $release_date_year, $this->post->ID);
+	}
+
 
 	/**
 	* wrapper for getting WC product image

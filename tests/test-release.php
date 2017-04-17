@@ -63,6 +63,22 @@ class ReleaseTest extends WP_UnitTestCase {
 
 	}
 
+	function test_set_year_of_release() {
+		$release = $this->_create_release( '16 Horsepower', 'Hoarse' );
+		$release->set_year_of_release();
+		$expected = '2000';
+		$actual = get_field('release_date_year', $release->post->ID);
+		$this->assertEquals( $expected, $actual );
+	}
+
+	function test_get_year_of_release() {
+		$release = $this->_create_release( '16 Horsepower', 'Hoarse' );
+		$release->set_year_of_release();
+		$expected = '2000';
+		$actual = $release->get_year_of_release();
+		$this->assertEquals( $expected, $actual );
+	}
+
 	function test_set_artwork()  {
 
 		// we need to setup a few settings like the default place holder uri

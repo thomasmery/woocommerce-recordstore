@@ -153,5 +153,25 @@ class APITest extends WP_UnitTestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
+	function test_get_year() {
+		$discogs_api_db = new Database();
+		$year = $discogs_api_db->get_year([
+			'artist' => '16 Horsepower',
+			'title' => 'Hoarse',
+		]);
+		$expected = '2000';
+		$actual = $year;
+		$this->assertEquals( $expected, $actual );
+
+		$discogs_api_db = new Database();
+		$year = $discogs_api_db->get_year([
+			'artist' => 'Nick Drake',
+			'title' => 'Five Leaves Left',
+		]);
+		$expected = '1969';
+		$actual = $year;
+		$this->assertEquals( $expected, $actual );
+	}
+
 }
 
