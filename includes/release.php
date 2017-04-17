@@ -140,11 +140,7 @@ class Release {
 		if ( $artwork_uri === Media::$default_artwork_image_uri ) {
 			// we also set a generic name in case the default place holder does not exist and is created
 			$artwork_wp_title = "Default Placeholder";
-
-			$default_image_path_parts = explode('/', Media::$default_artwork_image_uri);
-			$default_image_filename = $default_image_path_parts[ count($default_image_path_parts) - 1];
-			$default_image_basename = explode('.', $default_image_filename)[0];
-			$attachment_id = Media::get_attachment_id_by_filename( $default_image_basename );
+			$attachment_id = Media::get_default_placeholder_attachment_id();
 		}
 
 		// actually attach Media from remote service

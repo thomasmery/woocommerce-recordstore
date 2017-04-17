@@ -109,4 +109,24 @@ class Media {
 		return isset( $attachments_ids[0] ) ? $attachments_ids[0] : null ;
 	}
 
+	/**
+	* convenience method
+	*/
+	public static function get_attachment_by_filename( $path ) {
+		return get_post( self::get_attachment_id_by_filename( $path ) );
+	}
+
+	/**
+	* get Default Placeholder attachment ID
+	*/
+	public static function get_default_placeholder_attachment_id() {
+
+		$default_image_path_parts = explode('/', self::$default_artwork_image_uri);
+		$default_image_filename = $default_image_path_parts[ count($default_image_path_parts) - 1];
+		$default_image_basename = explode('.', $default_image_filename)[0];
+
+		return self::get_attachment_id_by_filename( $default_image_basename );
+
+	}
+
 }
