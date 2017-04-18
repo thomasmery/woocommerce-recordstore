@@ -30,6 +30,10 @@ class Setup {
 		* Taxonomonies
 		*/
 		require_once( PLUGIN_PATH . '/includes/taxonomies.php' );
+		add_action('init', __NAMESPACE__ . '\register_product_categories');
+		add_action('init', __NAMESPACE__ . '\register_artist_taxonomy');
+		add_action('init', __NAMESPACE__ . '\register_genre_taxonomy');
+		add_action('init', __NAMESPACE__ . '\register_style_taxonomy');
 
 		/**
 		* default media file renaming

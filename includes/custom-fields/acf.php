@@ -248,6 +248,11 @@ function acf_init() {
 						'operator' => '==',
 						'value' => 'product',
 					),
+					array (
+						'param' => 'post_taxonomy',
+						'operator' => '==',
+						'value' => 'product_cat:music-release',
+					),
 				),
 			),
 			'menu_order' => 0,

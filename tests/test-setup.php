@@ -30,6 +30,18 @@ class SetupTest extends WP_UnitTestCase {
 		);
 	}
 
+	// Music Release Product category
+	function test_music_release_product_category() {
+		$taxonomy = 'product_cat';
+		$term_name = 'Music Release';
+		$term_slug = 'music-release';
+		$term = term_exists( $term_slug, $taxonomy );
+		$this->assertEquals( true, $term !== 0 && $term !== null );
+
+		$term = get_term( $term['term_id'], $taxonomy );
+		$this->assertEquals( 'Music Release', $term->name );
+	}
+
 	// Artist
 	function test_artist_taxonomy() {
 		$taxonomy = self::$__NAMESPACE__  . '_artist';

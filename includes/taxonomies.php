@@ -2,7 +2,19 @@
 
 namespace WC_Discogs;
 
-/** Registering the plugin Taxonomies
+
+/** Create default Product Categories
+* only one mandatory exists: Music Release
+*/
+function register_product_categories () {
+	/** Create default Music Release Product Category */
+	$music_release_category_term = get_term_by( 'slug', 'music-release', 'product_cat' );
+	if( ! $music_release_category_term ) {
+		wp_create_term('Music Release', 'product_cat');
+	}
+}
+
+/** the plugin Taxonomies
 
 	- Artist
 	- Genre
@@ -44,7 +56,6 @@ function register_artist_taxonomy() {
 
 	register_taxonomy(__NAMESPACE__  . '_artist', $object_types, $args);
 }
-add_action('init', __NAMESPACE__ . '\register_artist_taxonomy');
 
 // registration code for genre taxonomy
 function register_genre_taxonomy() {
@@ -76,7 +87,6 @@ function register_genre_taxonomy() {
 
 	register_taxonomy(__NAMESPACE__  . '_genre', $object_types, $args);
 }
-add_action('init', __NAMESPACE__ . '\register_genre_taxonomy');
 
 // registration code for genre taxonomy
 function register_style_taxonomy() {
@@ -107,4 +117,3 @@ function register_style_taxonomy() {
 	];
 	register_taxonomy(__NAMESPACE__  . '_style', $object_types, $args);
 }
-add_action('init', __NAMESPACE__ . '\register_style_taxonomy');
