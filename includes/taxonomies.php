@@ -10,7 +10,7 @@ function register_product_categories () {
 	/** Create default Music Release Product Category */
 	$music_release_category_term = get_term_by( 'slug', 'music-release', 'product_cat' );
 	if( ! $music_release_category_term ) {
-		$term = wp_create_term('Music Release', 'product_cat');
+		$term = wp_insert_term('Music Release', 'product_cat');
 	}
 }
 
