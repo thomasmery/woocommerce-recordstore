@@ -1,13 +1,18 @@
 <?php
-
 /**
  * Class SetupTest
  *
  * @package Woocommerce_Discogs
- */
+*/
+
+
 class SetupTest extends WP_UnitTestCase {
 
 	static $__NAMESPACE__ = 'WC_Discogs';
+
+	function setUp(){
+		call_user_func( self::$__NAMESPACE__ . '\register_product_categories');
+	}
 
 	/** should pass always
 		set up to make sure the wp functions used in the tests
@@ -35,6 +40,13 @@ class SetupTest extends WP_UnitTestCase {
 		$taxonomy = 'product_cat';
 		$term_name = 'Music Release';
 		$term_slug = 'music-release';
+
+		$this->assertEquals(
+			true,
+			taxonomy_exists($taxonomy),
+			$taxonomy . ' is not registered'
+		);
+
 		$term = term_exists( $term_slug, $taxonomy );
 		$this->assertEquals( true, $term !== 0 && $term !== null );
 
