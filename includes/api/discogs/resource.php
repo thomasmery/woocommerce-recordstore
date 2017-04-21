@@ -25,14 +25,10 @@ abstract class Resource {
 			]
 		];
 
-		$config = [ 'defaults' => $config ];
-
 		$config = ClientFactory::mergeRecursive(
 			$defaultConfig,
 			$config
 		);
-
-		var_dump($config);
 
 		$this->client = ClientFactory::factory($config);
 
