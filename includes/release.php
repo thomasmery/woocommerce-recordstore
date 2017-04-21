@@ -86,9 +86,9 @@ class Release {
 	*/
 	public function set_genres_and_styles() {
 		// get from discogs
-		$discogs_db = new Discogs\Database();
-		$genres = $discogs_db->get_genres( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
-		$styles = $discogs_db->get_styles( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
+		$discogs = new Discogs\Database();
+		$genres = $discogs->get_genres( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
+		$styles = $discogs->get_styles( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
 
 		// add to product
 		wp_add_object_terms( $this->post->ID, $genres, __NAMESPACE__ . '_genre');
@@ -118,8 +118,8 @@ class Release {
 	*/
 	public function set_year_of_release() {
 		// get from discogs
-		$discogs_db = new Discogs\Database();
-		$release_date_year = $discogs_db->get_year( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
+		$discogs = new Discogs\Database();
+		$release_date_year = $discogs->get_year( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
 
 		update_field('release_date_year', $release_date_year, $this->post->ID);
 	}
