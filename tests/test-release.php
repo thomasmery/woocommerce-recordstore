@@ -137,19 +137,19 @@ class ReleaseTest extends WP_UnitTestCase {
 		$this->assertEquals( $expected_tracklist, $actual_tracklist);
 	}
 
-	function test_set_year_of_release() {
+	function test_set_year() {
 		$release = $this->_create_release( '16 Horsepower', 'Hoarse' );
-		$release->set_year_of_release();
+		$release->set_year();
 		$expected = '2000';
 		$actual = get_field('release_date_year', $release->post->ID);
 		$this->assertEquals( $expected, $actual );
 	}
 
-	function test_get_year_of_release() {
+	function test_get_year() {
 		$release = $this->_create_release( '16 Horsepower', 'Hoarse' );
-		$release->set_year_of_release();
+		$release->set_year();
 		$expected = '2000';
-		$actual = $release->get_year_of_release();
+		$actual = $release->get_year();
 		$this->assertEquals( $expected, $actual );
 	}
 

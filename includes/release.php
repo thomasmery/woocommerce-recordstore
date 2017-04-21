@@ -270,7 +270,7 @@ class Release {
 	* Will fetch Year of release from en external API
 	* and set the appropriate custom field
 	*/
-	public function get_year_of_release() {
+	public function get_year() {
 
 		if( ! $this->_release_date_year ) {
 			$this->_release_date_year = get_field('release_date_year', $this->post->ID);
@@ -283,7 +283,7 @@ class Release {
 	* Will fetch Year of release from en external API
 	* and set the appropriate custom field
 	*/
-	public function set_year_of_release() {
+	public function set_year() {
 		// get from discogs
 		$discogs = new Discogs\Database();
 		$release_date_year = $discogs->get_year( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
