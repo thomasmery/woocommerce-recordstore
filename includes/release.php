@@ -7,6 +7,7 @@
 namespace WC_Discogs;
 
 use WC_Discogs\API\Discogs\Image;
+use WC_Discogs\API\Discogs;
 
 class Release {
 
@@ -16,14 +17,14 @@ class Release {
 	private $_artists;
 
 	/**
-	* @var
+	* @var string
 	*/
-	private $genres;
+	private $_genres;
 
 	/**
-	* @var $styles
+	* @var string
 	*/
-	private $styles;
+	private $_styles;
 
 	/**
 	* @var $_release_date_year
@@ -55,6 +56,12 @@ class Release {
 		$this->post = $post;
 	}
 
+
+
+	/**
+	* Artists
+	*********/
+
 	/**
 	* get artists names separated by $separator
 	* @param $separator
@@ -70,12 +77,16 @@ class Release {
 		return $this->_artists;
 	}
 
+
+	/** Genres & Styles
+	*******************/
+
 	/**
 	* will fetch genres and styles from an external API
 	*/
 	public function set_genres_and_styles() {
 		// get from discogs
-		$discogs_db = new \WC_Discogs\API\Discogs\Database();
+		$discogs_db = new Discogs\Database();
 		$genres = $discogs_db->get_genres( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
 		$styles = $discogs_db->get_styles( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
 
@@ -84,6 +95,9 @@ class Release {
 		wp_add_object_terms( $this->post->ID, $styles, __NAMESPACE__ . '_style');
 	}
 
+
+	/** Other infos
+	*******************/
 
 	/**
 	* Will fetch Year of release from en external API
@@ -104,12 +118,15 @@ class Release {
 	*/
 	public function set_year_of_release() {
 		// get from discogs
-		$discogs_db = new \WC_Discogs\API\Discogs\Database();
+		$discogs_db = new Discogs\Database();
 		$release_date_year = $discogs_db->get_year( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
 
 		update_field('release_date_year', $release_date_year, $this->post->ID);
 	}
 
+
+	/** Artwork
+	*******************/
 
 	/**
 	* wrapper for getting WC product image
@@ -180,7 +197,7 @@ class Release {
 		}
 
 		// Get Artwork URI from external source
-		$external_resource = new \WC_Discogs\API\Discogs\Database();
+		$external_resource = new Discogs\Database();
 		$artwork_uri = $external_resource->get_artwork_uri( [
 			'artist' => $artist,
 			'title' => $title,
