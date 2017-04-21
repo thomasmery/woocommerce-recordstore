@@ -13,9 +13,9 @@ abstract class Resource {
 
 	protected $client;
 
-	public function __construct() {
+	public function __construct( array $config = [] ) {
 
-		$this->client = ClientFactory::factory([
+		$defaultConfig = [
 			'defaults' => [
 				'debug' => false,
 				'query' => [
@@ -23,7 +23,18 @@ abstract class Resource {
 					'secret' => getenv('DISCOGS_API_CONSUMER_SECRET'),
 				]
 			]
-		]);
+		];
+
+		$config = [ 'defaults' => $config ];
+
+		$config = ClientFactory::mergeRecursive(
+			$defaultConfig,
+			$config
+		);
+
+		var_dump($config);
+
+		$this->client = ClientFactory::factory($config);
 
 	}
 

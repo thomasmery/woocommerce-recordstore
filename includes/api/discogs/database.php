@@ -11,8 +11,8 @@ use WC_Discogs\API\Discogs\Resource;
 
 class Database extends Resource {
 
-	public function __construct() {
-		parent::__construct();
+	public function __construct( array $config = [] ) {
+		parent::__construct( $config );
 	}
 
 	public function get_artwork_uri( array $params = [] ) {
@@ -74,10 +74,16 @@ class Database extends Resource {
 
 	public function search( array $params = [] ) {
 
+		/**
+		* @since 1.0.0
+		* allows to modify the query just before it is sent to Discogs
+		*/
+		$params = apply_filters( __NAMESPACE__ . '\search_params', $params );
+
+        // var_dump($params);
+
 		try {
-
 			$result = $this->client->search( $params );
-
 		}
 		catch (Exception $error) {
 			echo $error->getMessage();
