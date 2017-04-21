@@ -17,7 +17,10 @@ abstract class Resource {
 
 		$defaultConfig = [
 			'defaults' => [
-				'debug' => false,
+				'debug' =>
+					Settings::$options && isset(Settings::$options['debug'])
+						? Settings::$options['debug']
+						: false,
 				'query' => [
 					'key' => getenv('DISCOGS_API_CONSUMER_KEY'),
 					'secret' => getenv('DISCOGS_API_CONSUMER_SECRET'),
