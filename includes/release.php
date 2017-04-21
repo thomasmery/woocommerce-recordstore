@@ -96,6 +96,173 @@ class Release {
 	}
 
 
+	/* Tracklist
+	*************/
+
+	/**
+	* @return array an array of tracks, an empty array if there are none for this release
+	*/
+	function get_tracklist() {
+		return get_field('tracklist', $this->post->ID) ?: [];
+	}
+
+	/*
+	* fetch tracks at Discogs & Spotify
+	* uses Discogs tracklist as reference
+	* enhance list with preview url
+	* & using spotify durations when preview exists
+	*/
+	function set_tracklist() {
+
+		$title = $this->post->post_title;
+		$artist = $this->get_artists();
+
+		// remove all tracks - acf style
+		update_field('tracklist', [], $this->post->ID);
+
+		// get from discogs
+		$tracklist_discogs = null;
+		try {
+			$discogs = new Discogs\Database();
+			$tracklist_discogs = $discogs->get_tracklist( [ 'title' => $title, 'artist' => $artist ] );
+			$tracklist_discogs = array_map(
+				function ($track) {
+					return [
+						'title' => $track['title'],
+						'duration' => $track['duration'],
+					];
+				},
+				$tracklist_discogs
+			);
+		}
+		catch(Exception $e) {
+			error_log($e->getMessage());
+		}
+
+		// get from spotify
+		try {
+			$tracklist_spotify = $this->get_spotify_tracklist();
+			if( $tracklist_spotify ) {
+				$tracklist_spotify = array_map(
+					function($track) {
+						$duration_mn = intval($track->duration_ms) / 1000;
+						$mn_in_duration = floor($duration_mn / 60 % 60);
+						$s_in_duration = floor($duration_mn % 60);
+						$mn_in_duration_str = str_pad($mn_in_duration, 2, '0', STR_PAD_LEFT);
+						$s_in_duration_str = str_pad($s_in_duration, 2, '0', STR_PAD_LEFT);
+						$formatted_duration =  "$mn_in_duration_str:$s_in_duration_str";
+						return [
+							'title' => $track->name,
+							'duration' => $formatted_duration,
+							'preview_url' => $track->preview_url,
+						];
+					},
+					$tracklist_spotify
+				);
+			}
+		}
+		catch(Exception $e) {
+			error_log($e->getMessage());
+		}
+
+		// merge lists
+		try {
+			$tracklist = [];
+			if( $tracklist_discogs && $tracklist_spotify ) {
+				$tracklist = array_map(
+					function ($discogs_track) use ($tracklist_spotify) {
+						foreach($tracklist_spotify as $spotify_track) {
+
+							// we prefer finding a match on title
+							// rather than relying on track number (order in both arrays)
+							// to avoid errors in case 2 entries have not the same tracks order
+							setlocale(LC_ALL, 'en_US.UTF-8');
+							$discogs_title = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', trim(strtolower($discogs_track['title'])));
+							$spotify_title = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', trim(strtolower($spotify_track['title'])));
+
+							// replace characters that could not match
+							$chars_map = [ '&' => 'and'];
+							$discogs_title = sanitize_title(strtr($discogs_title, $chars_map));
+							$spotify_title = sanitize_title(strtr($spotify_title, $chars_map));
+
+							// $pattern = preg_quote($discogs_title, '/');
+							// if(preg_match("/$pattern/", $spotify_title)) {
+							similar_text($discogs_title, $spotify_title, $matching_percentage);
+							if($matching_percentage > 80) {
+								// we don't want to erase spotify's duration
+								if($spotify_track['duration']) {
+									unset($discogs_track['duration']);
+								}
+								return array_merge($spotify_track, $discogs_track);
+							}
+						}
+
+						return $discogs_track;
+
+					},
+					$tracklist_discogs
+				);
+			}
+			elseif($tracklist_discogs) {
+				$tracklist = $tracklist_discogs;
+			}
+			elseif($tracklist_spotify) {
+				$tracklist = $tracklist_spotify;
+			}
+		}
+		catch(Exception $e) {
+			error_log($e->getMessage());
+		}
+
+		// add to release
+		try {
+			foreach( $tracklist as $track ) {
+				add_row( 'tracklist',  $track, $this->post->ID);
+			}
+		}
+		catch(Exception $e) {
+			error_log($e->getMessage());
+		}
+
+		return true;
+
+	}
+
+	function get_spotify_tracklist() {
+
+		$title = $this->post->post_title;
+		$artist = $this->get_artists();
+
+		try {
+			// search for track with title and artist
+			// TODO use Guzzle for consistency
+			$search_url = "https://api.spotify.com/v1/search?q=album:{$title}%20artist:{$artist}&type=album";
+			$response = wp_remote_get($search_url,['Accept' => 'application/json']);
+			$response_body = json_decode($response['body']);
+
+			if( ! $response_body
+				|| ! $response_body->albums
+				|| ! $response_body->albums->items
+			) {
+				return [];
+			}
+
+			$tracklist = [];
+			if ($response_body->albums->items) {
+				$album_url = $response_body->albums->items[0]->href;
+				$response = wp_remote_get($album_url,['Accept' => 'application/json']);
+				$response_body = json_decode($response['body']);
+				return $response_body->tracks->items;
+			}
+		}
+		catch(Exception $e) {
+			error_log($e->getMessage());
+		}
+
+		return [];
+	}
+
+
 	/** Other infos
 	*******************/
 

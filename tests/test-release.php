@@ -63,6 +63,80 @@ class ReleaseTest extends WP_UnitTestCase {
 
 	}
 
+	function test_get_tracklist() {
+
+		$release = $this->_create_release();
+		$expected_tracklist = [
+			['title' => 'Time Has Told Me','duration' => '04:24','preview_url' => 'https://p.scdn.co/mp3-preview/eb6e3e0b1ffb064091316d4856a59a658d7fab1f?cid=null',],
+			['title' => 'River Man','duration' => '04:18','preview_url' => 'https://p.scdn.co/mp3-preview/f885e37632e1e5724f4190b4c166b57126f60e4a?cid=null',],
+			['title' => 'Three Hours','duration' => '06:12','preview_url' => 'https://p.scdn.co/mp3-preview/875baced992ee6503a83e711f04fa2b29a28cc3f?cid=null',],
+			['title' => 'Day Is Done','duration' => '02:25','preview_url' => 'https://p.scdn.co/mp3-preview/215937883094ee51a1f323dce917deaa8133e9e2?cid=null',],
+			['title' => 'Way To Blue','duration' => '03:08','preview_url' => 'https://p.scdn.co/mp3-preview/d67ddaeca8b4f547ae087a9323bb34fa8ac3b12b?cid=null',],
+			['title' => '\'Cello Song','duration' => '04:44','preview_url' => 'https://p.scdn.co/mp3-preview/f83785b94464731732dbaa495201eac494ec9f4c?cid=null',],
+			['title' => 'The Thoughts Of Mary Jane','duration' => '03:18','preview_url' => 'https://p.scdn.co/mp3-preview/d08cbbd6b1c2203ba102bac1a35355ad1b500951?cid=null',],
+			['title' => 'Man In A Shed','duration' => '03:51','preview_url' => 'https://p.scdn.co/mp3-preview/26552f948a8ef721516a80820544e9a774908ef0?cid=null',],
+			['title' => 'Fruit Tree','duration' => '04:45','preview_url' => 'https://p.scdn.co/mp3-preview/35c6716b9503a20304e5a2df088be27d8649a142?cid=null',],
+			['title' => 'Saturday Sun','duration' => '04:02','preview_url' => 'https://p.scdn.co/mp3-preview/f6d24b5a17974a243906e93cb53094d109b31cbf?cid=null',]
+		];
+		foreach( $expected_tracklist as $track ) {
+			add_row( 'tracklist',  $track, $release->post->ID);
+		}
+		$actual_tracklist = $release->get_tracklist();
+		$this->assertEquals( $expected_tracklist, $actual_tracklist);
+
+	}
+
+	function test_set_tracklist() {
+
+		new Settings();
+		Settings::$options['debug'] = false;
+
+		// tracklist from discogs - augmented with preview urls from Spotify
+		$release = $this->_create_release();
+		$release->set_tracklist();
+		$expected_tracklist = [
+			['title' => 'Time Has Told Me','duration' => '04:24','preview_url' => 'https://p.scdn.co/mp3-preview/eb6e3e0b1ffb064091316d4856a59a658d7fab1f?cid=null',],
+			['title' => 'River Man','duration' => '04:18','preview_url' => 'https://p.scdn.co/mp3-preview/f885e37632e1e5724f4190b4c166b57126f60e4a?cid=null',],
+			['title' => 'Three Hours','duration' => '06:12','preview_url' => 'https://p.scdn.co/mp3-preview/875baced992ee6503a83e711f04fa2b29a28cc3f?cid=null',],
+			['title' => 'Day Is Done','duration' => '02:25','preview_url' => 'https://p.scdn.co/mp3-preview/215937883094ee51a1f323dce917deaa8133e9e2?cid=null',],
+			['title' => 'Way To Blue','duration' => '03:08','preview_url' => 'https://p.scdn.co/mp3-preview/d67ddaeca8b4f547ae087a9323bb34fa8ac3b12b?cid=null',],
+			['title' => '\'Cello Song','duration' => '04:44','preview_url' => 'https://p.scdn.co/mp3-preview/f83785b94464731732dbaa495201eac494ec9f4c?cid=null',],
+			['title' => 'The Thoughts Of Mary Jane','duration' => '03:18','preview_url' => 'https://p.scdn.co/mp3-preview/d08cbbd6b1c2203ba102bac1a35355ad1b500951?cid=null',],
+			['title' => 'Man In A Shed','duration' => '03:51','preview_url' => 'https://p.scdn.co/mp3-preview/26552f948a8ef721516a80820544e9a774908ef0?cid=null',],
+			['title' => 'Fruit Tree','duration' => '04:45','preview_url' => 'https://p.scdn.co/mp3-preview/35c6716b9503a20304e5a2df088be27d8649a142?cid=null',],
+			['title' => 'Saturday Sun','duration' => '04:02','preview_url' => 'https://p.scdn.co/mp3-preview/f6d24b5a17974a243906e93cb53094d109b31cbf?cid=null',]
+		];
+		$actual_tracklist = $release->get_tracklist();
+		$this->assertEquals( $expected_tracklist, $actual_tracklist);
+
+		// tracklist from Discogs - not found on Spotify
+		$release = $this->_create_release( 'Various', 'Biologia Marina');
+		$release->set_tracklist();
+		$expected_tracklist = [
+			[ 'title' => 'Acquario', 'duration' => '3:01', 'preview_url' => '' ],
+			[ 'title' => 'Bollicine', 'duration' => '2:32', 'preview_url' => '' ],
+			[ 'title' => 'Correnti Sottomarine', 'duration' => '3:10', 'preview_url' => '' ],
+			[ 'title' => 'Octopus', 'duration' => '2:54', 'preview_url' => '' ],
+			[ 'title' => 'Vita Abissale', 'duration' => '2:39', 'preview_url' => '' ],
+			[ 'title' => 'Acque Tranquille', 'duration' => '2:28', 'preview_url' => '' ],
+			[ 'title' => 'Mostro Marino', 'duration' => '2:34', 'preview_url' => '' ],
+			[ 'title' => 'Subsuspense', 'duration' => '2:36', 'preview_url' => '' ],
+			[ 'title' => 'Subsuspense (2° Versione)', 'duration' => '2:36', 'preview_url' => '' ],
+			[ 'title' => 'Stella Marine', 'duration' => '3:06', 'preview_url' => '' ],
+			[ 'title' => 'Profondita´', 'duration' => '2:28', 'preview_url' => '' ],
+			[ 'title' => 'Atlantic', 'duration' => '2:48', 'preview_url' => ''],
+  		];
+		$actual_tracklist = $release->get_tracklist();
+		$this->assertEquals( $expected_tracklist, $actual_tracklist);
+
+		// no tracklist
+		$release = $this->_create_release( 'Some unknown artist', 'at leasr on Discogs');
+		$release->set_tracklist();
+		$expected_tracklist = [];
+		$actual_tracklist = $release->get_tracklist();
+		$this->assertEquals( $expected_tracklist, $actual_tracklist);
+	}
+
 	function test_set_year_of_release() {
 		$release = $this->_create_release( '16 Horsepower', 'Hoarse' );
 		$release->set_year_of_release();
