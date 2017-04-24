@@ -12,27 +12,6 @@ use WC_Discogs\API\Discogs;
 class Release {
 
 	/**
-	* @var string
-	*/
-	private $_artists;
-
-	/**
-	* @var string
-	*/
-	private $_genres;
-
-	/**
-	* @var string
-	*/
-	private $_styles;
-
-	/**
-	* @var $_release_date_year
-	*/
-	private $_release_date_year;
-
-
-	/**
 	* a WP Post the record is associated with
 	* @var $post
 	*/
@@ -54,6 +33,11 @@ class Release {
 		}
 
 		$this->post = $post;
+
+		// caching
+		$this->_artists = $this->get_artists();
+		$this->_genres = $this->get_genres();
+		$this->_styles = $this->get_styles();
 	}
 
 
@@ -81,17 +65,54 @@ class Release {
 	*******************/
 
 	/**
+	* @param $separator string
+	* @return string a list of Genres separated by $separator
+	* an empty string if no genres are found
+	*/
+	public function get_genres( $separator = ', ') {
+
+		$this->_genres = implode(
+			$separator,
+			wp_get_object_terms( $this->post->ID, GENRE_TAXONOMY, [ 'fields' => 'names', 'orderby' => 'term_order' ] )
+		);
+
+		return $this->_genres;
+
+	}
+	public function get_styles( $separator = ', ') {
+
+		$this->_styles = implode(
+			$separator,
+			wp_get_object_terms( $this->post->ID, STYLE_TAXONOMY, [ 'fields' => 'names', 'orderby' => 'term_order' ] )
+		);
+
+		return $this->_styles;
+	}
+
+	/**
 	* will fetch genres and styles from an external API
 	*/
-	public function set_genres_and_styles() {
+	public function set_genres_and_styles( array $options = [ 'keep' => false ] ) {
 		// get from discogs
 		$discogs = new Discogs\Database();
 		$genres = $discogs->get_genres( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
 		$styles = $discogs->get_styles( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
 
-		// add to product
-		wp_add_object_terms( $this->post->ID, $genres, __NAMESPACE__ . '_genre');
-		wp_add_object_terms( $this->post->ID, $styles, __NAMESPACE__ . '_style');
+		// keep existing terms
+		// keep order (term_order)
+		if( $options['keep'] ) {
+			$genres = array_merge(
+				wp_get_object_terms( $this->post->ID, GENRE_TAXONOMY, [ 'fields' => 'names', 'orderby' => 'term_order' ] ),
+				$genres
+			);
+			$styles = array_merge(
+				wp_get_object_terms( $this->post->ID, STYLE_TAXONOMY, [ 'fields' => 'names', 'orderby' => 'term_order' ] ),
+				$styles
+			);
+		}
+
+		wp_set_object_terms( $this->post->ID, $genres, GENRE_TAXONOMY);
+		wp_set_object_terms( $this->post->ID, $styles, STYLE_TAXONOMY);
 	}
 
 
@@ -271,9 +292,7 @@ class Release {
 	*/
 	public function get_year() {
 
-		if( ! $this->_release_date_year ) {
-			$this->_release_date_year = get_field('release_date_year', $this->post->ID);
-		}
+		$this->_release_date_year = get_field('release_date_year', $this->post->ID);
 
 		return $this->_release_date_year;
 	}

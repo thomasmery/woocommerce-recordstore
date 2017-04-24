@@ -49,6 +49,26 @@ class ReleaseTest extends WP_UnitTestCase {
 
 	}
 
+	function test_get_genres() {
+		$taxonomy = constant(self::$__NAMESPACE__ . '\GENRE_TAXONOMY');
+		$release = $this->_create_release();
+		$separator = ', ';
+		$actual_genres = implode( $separator, ['Rock', 'Folk'] );
+		wp_add_object_terms( $release->post->ID, explode( $separator, $actual_genres ), constant(self::$__NAMESPACE__ . '\GENRE_TAXONOMY'));
+		$expected_genres = $release->get_genres( $separator );
+		$this->assertEquals( $expected_genres, $actual_genres );
+	}
+
+	function test_get_styles() {
+		$taxonomy = constant(self::$__NAMESPACE__ . '\STYLE_TAXONOMY');
+		$release = $this->_create_release();
+		$separator = ', ';
+		$actual_styles = implode( $separator, ['English Folk', 'Fingerpicking'] );
+		wp_add_object_terms( $release->post->ID, explode( $separator, $actual_styles ), constant(self::$__NAMESPACE__ . '\STYLE_TAXONOMY'));
+		$expected_styles = $release->get_styles( $separator );
+		$this->assertEquals( $expected_styles, $actual_styles );
+	}
+
 	function test_set_genres_and_styles() {
 
 		$genre_taxonomy = constant(self::$__NAMESPACE__ . '\GENRE_TAXONOMY');
@@ -67,6 +87,31 @@ class ReleaseTest extends WP_UnitTestCase {
 		$this->assertEquals( [ 'Rock' ], $genres_names );
 		$styles_names = wp_get_object_terms( $release->post->ID, $style_taxonomy, [ 'fields' => 'names' ]);
 		$this->assertEquals( [ 'Noise' ], $styles_names );
+
+		// test 'keep' param
+		$manually_added_genres = ['80\'s', 'British'];
+		$manually_added_styles = ['Shoegaze'];
+
+		$release = $this->_create_release( 'The Jesus and Mary Chain', 'Psychocandy' );
+
+		wp_add_object_terms( $release->post->ID, $manually_added_genres, $genre_taxonomy);
+		wp_add_object_terms( $release->post->ID, $manually_added_styles, $style_taxonomy);
+		// do not keep manually added genres
+		$release->set_genres_and_styles();
+		$genres_names = wp_get_object_terms( $release->post->ID, $genre_taxonomy, [ 'fields' => 'names', 'orderby' => 'term_id' ]);
+		$this->assertEquals( [ 'Rock' ], $genres_names );
+		$styles_names = wp_get_object_terms( $release->post->ID, $style_taxonomy, [ 'fields' => 'names' ]);
+		$this->assertEquals( [ 'Noise' ], $styles_names );
+
+		$release = $this->_create_release( 'The Jesus and Mary Chain', 'Psychocandy' );
+		wp_set_object_terms( $release->post->ID, $manually_added_genres, $genre_taxonomy);
+		wp_set_object_terms( $release->post->ID, $manually_added_styles, $style_taxonomy);
+		// keep manually added genres
+		$release->set_genres_and_styles( ['keep' => true ] );
+		$genres_names = wp_get_object_terms( $release->post->ID, $genre_taxonomy, [ 'fields' => 'names', 'orderby' => 'term_order' ]);
+		$this->assertEquals( [ '80\'s', 'British', 'Rock' ], $genres_names );
+		$styles_names = wp_get_object_terms( $release->post->ID, $style_taxonomy, [ 'fields' => 'names', 'orderby' => 'term_order' ]);
+		$this->assertEquals( [ 'Shoegaze', 'Noise' ], $styles_names );
 
 	}
 
@@ -331,7 +376,7 @@ class ReleaseTest extends WP_UnitTestCase {
 	**/
 	function _create_release( $artist_name = 'Nick Drake', $release_title = 'Five Leaves Left') {
 
-		$taxonomy = self::$__NAMESPACE__ . '_artist';
+		$taxonomy = constant(self::$__NAMESPACE__ . '\ARTIST_TAXONOMY');
 
 		$product = WC_Helper_Product::create_simple_product();
 
