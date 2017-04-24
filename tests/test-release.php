@@ -23,7 +23,7 @@ class ReleaseTest extends WP_UnitTestCase {
 	 */
 	function test_get_artists() {
 
-		$taxonomy = self::$__NAMESPACE__ . '_artist';
+		$taxonomy = constant(self::$__NAMESPACE__ . '\ARTIST_TAXONOMY');
 		$separator = " | ";
 
 		$post_id = $this->factory->post->create();
@@ -51,8 +51,15 @@ class ReleaseTest extends WP_UnitTestCase {
 
 	function test_set_genres_and_styles() {
 
-		$genre_taxonomy = self::$__NAMESPACE__ . '_genre';
-		$style_taxonomy = self::$__NAMESPACE__ . '_style';
+		$genre_taxonomy = constant(self::$__NAMESPACE__ . '\GENRE_TAXONOMY');
+		$style_taxonomy = constant(self::$__NAMESPACE__ . '\STYLE_TAXONOMY');
+
+		$release = $this->_create_release( 'The Jesus and Mary Chain', 'Psychocandy' );
+		$release->set_genres_and_styles();
+		$genres_names = wp_get_object_terms( $release->post->ID, $genre_taxonomy, [ 'fields' => 'names' ]);
+		$this->assertEquals( [ 'Rock' ], $genres_names );
+		$styles_names = wp_get_object_terms( $release->post->ID, $style_taxonomy, [ 'fields' => 'names' ]);
+		$this->assertEquals( [ 'Noise' ], $styles_names );
 
 		$release = $this->_create_release( 'The Jesus and Mary Chain', 'Psychocandy' );
 		$release->set_genres_and_styles();
@@ -157,6 +164,7 @@ class ReleaseTest extends WP_UnitTestCase {
 
 		// we need to setup a few settings like the default place holder uri
 		new Settings();
+		// Settings::$options['debug'] = true;
 
 		$release = $this->_create_release();
 

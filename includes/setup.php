@@ -59,7 +59,7 @@ function default_media_file_rename( $filename, $post_id ) {
 	$post = get_post( $post_id );
 	$artist = implode(
 		'-',
-		wp_get_object_terms( $post_id, __NAMESPACE__ . '_artist', [ 'fields' => 'names' ] )
+		wp_get_object_terms( $post_id, ARTIST_TAXONOMY, [ 'fields' => 'names' ] )
 	);
 	$title = $post->post_title;
 

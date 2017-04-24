@@ -56,13 +56,13 @@ class SetupTest extends WP_UnitTestCase {
 
 	// Artist
 	function test_artist_taxonomy() {
-		$taxonomy = self::$__NAMESPACE__  . '_artist';
+		$taxonomy = constant( self::$__NAMESPACE__  . '\ARTIST_TAXONOMY') ;
 
 		// is registered
 		$this->assertEquals(
 			true,
-			taxonomy_exists(self::$__NAMESPACE__  . '_artist'),
-			self::$__NAMESPACE__  . '_artist is not registered'
+			taxonomy_exists( constant( self::$__NAMESPACE__  . '\ARTIST_TAXONOMY') ),
+			constant( self::$__NAMESPACE__  . '\ARTIST_TAXONOMY') . ' is not registered'
 		);
 
 		// is associated with the correct post type
@@ -74,13 +74,13 @@ class SetupTest extends WP_UnitTestCase {
 
 	// Genre
 	function test_genre_taxonomy() {
-		$taxonomy = self::$__NAMESPACE__  . '_genre';
+		$taxonomy = constant(self::$__NAMESPACE__  . '\GENRE_TAXONOMY');
 
 		// is registered
 		$this->assertEquals(
 			true,
-			taxonomy_exists(self::$__NAMESPACE__  . '_genre'),
-			self::$__NAMESPACE__  . '_genre is not registered'
+			taxonomy_exists( constant(self::$__NAMESPACE__  . '\GENRE_TAXONOMY') ),
+			constant(self::$__NAMESPACE__  . '\GENRE_TAXONOMY') . ' is not registered'
 		);
 
 		// is associated with the correct post type
@@ -92,13 +92,13 @@ class SetupTest extends WP_UnitTestCase {
 
 	// Style
 	function test_style_taxonomy() {
-		$taxonomy = self::$__NAMESPACE__  . '_style';
+		$taxonomy = constant(self::$__NAMESPACE__  . '\STYLE_TAXONOMY');
 
 		// is registered
 		$this->assertEquals(
 			true,
-			taxonomy_exists(self::$__NAMESPACE__  . '_style'),
-			self::$__NAMESPACE__  . '_style is not registered'
+			taxonomy_exists( constant(self::$__NAMESPACE__  . '\STYLE_TAXONOMY') ),
+			constant(self::$__NAMESPACE__  . '\STYLE_TAXONOMY')  . ' is not registered'
 		);
 
 		// is associated with the correct post type
@@ -112,7 +112,7 @@ class SetupTest extends WP_UnitTestCase {
 	// default media rename
 	function test_default_media_rename() {
 
-		$taxonomy = SetupTest::$__NAMESPACE__ . '_artist';
+		$taxonomy = constant(SetupTest::$__NAMESPACE__ . '\ARTIST_TAXONOMY');
 
 		$artist = 'Nick Drake';
 		$title = 'Five Leaves Left';

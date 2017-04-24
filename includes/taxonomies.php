@@ -2,6 +2,9 @@
 
 namespace WC_Discogs;
 
+define( __NAMESPACE__. '\ARTIST_TAXONOMY', sanitize_key(__NAMESPACE__  . '_artist'));
+define( __NAMESPACE__ . '\GENRE_TAXONOMY', sanitize_key(__NAMESPACE__  . '_genre'));
+define( __NAMESPACE__ . '\STYLE_TAXONOMY', sanitize_key(__NAMESPACE__  . '_style'));
 
 /** Create default Product Categories
 * only one mandatory exists: Music Release
@@ -39,6 +42,8 @@ function register_artist_taxonomy() {
 		'show_tagcloud' 	=> false,
 		'show_in_nav_menus' => true,
 		'rewrite' 			=> array('slug' => 'genre', 'with_front' => false ),
+		'meta_box_cb' 		=> false,
+		'sort'				=> true,
 	];
 
 	$args['labels'] = [
@@ -54,7 +59,7 @@ function register_artist_taxonomy() {
 		'not_found_in_trash' 	=> __( 'No Artist found in Trash' ),
 	];
 
-	register_taxonomy(__NAMESPACE__  . '_artist', $object_types, $args);
+	register_taxonomy( ARTIST_TAXONOMY , $object_types, $args);
 }
 
 // registration code for genre taxonomy
@@ -70,6 +75,8 @@ function register_genre_taxonomy() {
 		'show_tagcloud' 	=> false,
 		'show_in_nav_menus' => true,
 		'rewrite' 			=> array('slug' => 'genre', 'with_front' => false ),
+		'meta_box_cb' 		=> false,
+		'sort'				=> true,
 	];
 
 	$args['labels'] = [
@@ -85,7 +92,7 @@ function register_genre_taxonomy() {
 		'not_found_in_trash' 	=> __( 'No Genre found in Trash' ),
 	];
 
-	register_taxonomy(__NAMESPACE__  . '_genre', $object_types, $args);
+	register_taxonomy( GENRE_TAXONOMY, $object_types, $args);
 }
 
 // registration code for genre taxonomy
@@ -101,6 +108,8 @@ function register_style_taxonomy() {
 		'show_tagcloud' 	=> false,
 		'show_in_nav_menus' => true,
 		'rewrite' 			=> array('slug' => 'style', 'with_front' => false ),
+		'meta_box_cb' 		=> false,
+		'sort'				=> true,
 	];
 
 	$args['labels'] = [
@@ -115,5 +124,5 @@ function register_style_taxonomy() {
 		'not_found' 			=> __( 'No Style found' ),
 		'not_found_in_trash' 	=> __( 'No Style found in Trash' ),
 	];
-	register_taxonomy(__NAMESPACE__  . '_style', $object_types, $args);
+	register_taxonomy( STYLE_TAXONOMY, $object_types, $args);
 }

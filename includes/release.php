@@ -67,12 +67,11 @@ class Release {
 	* @param $separator
 	*/
 	public function get_artists( $separator = ', ') {
-		if( ! $this->_artists ) {
-			$this->_artists = implode(
-				$separator,
-				wp_get_object_terms( $this->post->ID, __NAMESPACE__ . '_artist', [ 'fields' => 'names' ] )
-			);
-		}
+
+		$this->_artists = implode(
+			$separator,
+			wp_get_object_terms( $this->post->ID, ARTIST_TAXONOMY, [ 'fields' => 'names' ] )
+		);
 
 		return $this->_artists;
 	}
