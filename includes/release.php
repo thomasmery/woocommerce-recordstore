@@ -205,10 +205,10 @@ class Release {
 							$discogs_title = sanitize_title(strtr($discogs_title, $chars_map));
 							$spotify_title = sanitize_title(strtr($spotify_title, $chars_map));
 
-							// $pattern = preg_quote($discogs_title, '/');
-							// if(preg_match("/$pattern/", $spotify_title)) {
+							$pattern = preg_quote($discogs_title, '/');
+							$exact_match = preg_match("/$pattern/", $spotify_title, $matches);
 							similar_text($discogs_title, $spotify_title, $matching_percentage);
-							if($matching_percentage > 80) {
+							if($exact_match || $matching_percentage > 80) {
 								// we don't want to erase spotify's duration
 								if($spotify_track['duration']) {
 									unset($discogs_track['duration']);
@@ -248,10 +248,26 @@ class Release {
 
 	}
 
+	/**
+	* get a tracklist from spotify
+	* @todo this shoudl be moved to API\Spotify
+	*/
 	function get_spotify_tracklist() {
+		$params = [
 
-		$title = $this->post->post_title;
-		$artist = $this->get_artists();
+			'artist' => $this->get_artists(),
+			'title' => $this->post->post_title,
+		];
+
+		/**
+		* @since 1.0.0
+		* allows to modify the query just before it is sent to Spotify
+		* @todo this
+		*/
+		$params = apply_filters( __NAMESPACE__ . '\Release\spotify_tracklist_params', $params );
+
+		$artist = $params['artist'];
+		$title = $params['title'];
 
 		try {
 			// search for track with title and artist
