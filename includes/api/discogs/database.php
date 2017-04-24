@@ -134,9 +134,31 @@ class Database extends Resource {
 	*/
 	public function get_main_release( array $params ) {
 
+		// try Master Release
 		$release = $this->get_master_release( $params );
+		// try Main Release
 		if( ! $release ) {
 			$release = $this->get_release( $params );
+		}
+		// try with artist + title as the main query param
+		if( ! $release && empty($params['final']) ) {
+			add_filter(
+				__NAMESPACE__ . '\search_params',
+				function( $params ) {
+					if( ! isset($params['q']) || ! isset($params['title']) ) {
+						return $params;
+					}
+
+					$params['q'] .= '+' . $params['title'];
+					unset($params['title']);
+
+					return $params;
+				},
+				999
+			);
+			// let's go again
+			$params['final'] = true;
+			$this->get_main_release( $params );
 		}
 		return $release;
 
