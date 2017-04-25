@@ -17,6 +17,7 @@ abstract class Resource {
 
 		$defaultConfig = [
 			'defaults' => [
+				'headers' => ['User-Agent' => 'wc-record-store/1.0.0 +https://github.com/aaltomeri/wc-record-store'],
 				'debug' =>
 					Settings::$options && isset(Settings::$options['debug'])
 						? Settings::$options['debug']
