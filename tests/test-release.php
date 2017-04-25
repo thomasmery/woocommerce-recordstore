@@ -249,7 +249,7 @@ class ReleaseTest extends WP_UnitTestCase {
 
 		// test using the default placeholder image
 		// first pass : it does not exist in Media Library
-		$release = $this->_create_release( "Some Unknown Artist", "Some Unknown Title");
+		$release = $this->_create_release( "Some 20fsd654s6d4fsf Artist", "Some 20fsd654s6d4fsf Title");
 		$first_attachment_id = $release->set_artwork();
 		$default_image_path_parts = explode('/', Media::$default_artwork_image_uri);
 		$default_image_filename = $default_image_path_parts[ count($default_image_path_parts) - 1];
@@ -261,7 +261,7 @@ class ReleaseTest extends WP_UnitTestCase {
 		);
 
 		// second pass : it has been created before and we want to re-use it
-		$release = $this->_create_release( "Some Other Unknown Artist", "Some Other Unknown Title");
+		$release = $this->_create_release( "Some Other dqsd13qsdq Artist", "Some Other dqsd321qsd Title");
 		$second_attachment_id = $release->set_artwork();
 		$this->assertEquals( $first_attachment_id, $second_attachment_id);
 
