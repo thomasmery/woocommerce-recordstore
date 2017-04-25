@@ -35,6 +35,22 @@ abstract class Resource {
 		);
 
 		$this->client = ClientFactory::factory($config);
+		$this->client->getHttpClient()->getEmitter()->attach(new \Discogs\Subscriber\ThrottleSubscriber());
+
+		$this->client->getHttpClient()->getEmitter()->on('complete', function($event) {
+
+			$headers = $event->getResponse()->getHeaders();
+
+			$discogsRatelimit = intval( $headers['X-Discogs-Ratelimit'][0]) ;
+			$discogsRatelimitUsed = intval( $headers['X-Discogs-Ratelimit-Used'][0]) ;
+			$discogsRatelimitRemaining = intval( $headers['X-Discogs-Ratelimit-Remaining'][0]) ;
+
+			// we need to wait if we are reaching the Discogs API rate limit
+			if( $discogsRatelimitRemaining <  5) {
+				sleep( 60 );
+			}
+
+		});
 
 	}
 
