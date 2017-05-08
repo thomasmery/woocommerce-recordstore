@@ -57,6 +57,10 @@ class Setup {
 		add_filter( __NAMESPACE__ . '_rename_file_on_attach_from_url', __NAMESPACE__ . '\default_media_file_rename', 10, 2 );
 
 
+		/**
+		* global helpers
+		*/
+		require_once( PLUGIN_PATH . '/includes/functions.php' );
 	}
 
 	public function acf_path( $path ) {
