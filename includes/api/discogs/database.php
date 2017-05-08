@@ -134,10 +134,24 @@ class Database extends Resource {
 	*/
 	public function get_main_release( array $params ) {
 
+		$release = null;
+
+		$defaults = [
+			'type' => 'master'
+		];
+
+		$params = wp_parse_args( $params, $defaults );
+
 		// try Master Release
-		$release = $this->get_master_release( $params );
-		// try Main Release
+		// by default
+		if( $params['type'] === 'master') {
+			$release = $this->get_master_release( $params );
+		}
+		// try Main Release if no master found
+		// or we want to skip master in certain cases
+		// specifying 'type' => 'release' (or anything but 'master' for the moment)
 		if( ! $release ) {
+			$params['type'] = 'release';
 			$release = $this->get_release( $params );
 		}
 		// try with artist + title as the main query param
