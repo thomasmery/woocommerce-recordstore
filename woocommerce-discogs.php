@@ -29,7 +29,7 @@ define( __NAMESPACE__ . '\PLUGIN_URL', trailingslashit( plugin_dir_url( __FILE__
 // prevent direct access to file
 defined( 'ABSPATH' ) or exit;
 
-class WC_Discogs {
+class Main {
 
 	/**
 	* @var options
@@ -73,4 +73,4 @@ class WC_Discogs {
 
 }
 
-WC_Discogs::register();
+Main::register();
