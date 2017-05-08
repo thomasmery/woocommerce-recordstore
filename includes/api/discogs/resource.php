@@ -15,17 +15,20 @@ abstract class Resource {
 
 	public function __construct( array $config = [] ) {
 
+		$key = getenv('DISCOGS_API_CONSUMER_KEY');
+		$secret = getenv('DISCOGS_API_CONSUMER_SECRET');
+
 		$defaultConfig = [
 			'defaults' => [
-				'headers' => ['User-Agent' => 'wc-record-store/1.0.0 +https://github.com/aaltomeri/wc-record-store'],
+				'headers' => [
+					'User-Agent' => 'wc-record-store/1.0.0 +https://github.com/aaltomeri/wc-record-store',
+					'Authorization' => "Discogs key=$key, secret=$secret"
+				],
 				'debug' =>
 					Settings::$options && isset(Settings::$options['debug'])
 						? Settings::$options['debug']
-						: false,
-				'query' => [
-					'key' => getenv('DISCOGS_API_CONSUMER_KEY'),
-					'secret' => getenv('DISCOGS_API_CONSUMER_SECRET'),
-				]
+						: true,
+				'query' => []
 			]
 		];
 
