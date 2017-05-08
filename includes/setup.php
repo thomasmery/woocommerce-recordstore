@@ -36,6 +36,22 @@ class Setup {
 		add_action('init', __NAMESPACE__ . '\register_style_taxonomy');
 
 		/**
+		* WooCommerce filters
+		*/
+
+		// when counting the terms for products
+		// when a large amount of products is assigned to 1 category
+		// the db choke on most system w/ a large catalog
+		// Unhook update_count_callback for WooCommerce Product Categories
+		// as the _wc_term_recount function will generate a query that will cause this
+		// This solution might be temporary ... until WC has a more efficicient way of counting
+		add_filter('woocommerce_taxonomy_args_product_cat', function( $args ) {
+				$args['update_count_callback'] = '';
+				return $args;
+			}
+		);
+
+		/**
 		* default media file renaming
 		*/
 		add_filter( __NAMESPACE__ . '_rename_file_on_attach_from_url', __NAMESPACE__ . '\default_media_file_rename', 10, 2 );
