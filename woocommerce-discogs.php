@@ -59,6 +59,7 @@ class Main {
 	public function run() {
 		if( is_admin() ) {
 			new Admin\Settings();
+			new Admin\Product();
 		}
 
 		new Setup();
