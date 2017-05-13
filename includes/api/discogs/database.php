@@ -82,8 +82,15 @@ class Database extends Resource {
 
         // var_dump($params);
 
+		$cache_key =  "WC_Discogs\API\Discogs_search_" . md5(serialize($params));
+
+		if( $result = wp_cache_get( $cache_key ) ) {
+			return $result;
+		}
+
 		try {
 			$result = $this->client->search( $params );
+			wp_cache_set( $cache_key, $result );
 		}
 		catch (Exception $error) {
 			echo $error->getMessage();
@@ -109,12 +116,22 @@ class Database extends Resource {
 
 		$id = $response['results'][0]['id'];
 
+		$cache_key =  "WC_Discogs\API\Discogs_$type-" . md5(serialize($params));
+
 		switch($type) {
 			case 'release':
+				if( $release = wp_cache_get( $cache_key ) ) {
+					break;
+				}
 				$release = $this->client->getRelease( [ 'id' => $id ] );
+				wp_cache_set( $cache_key, $release );
 				break;
 			case 'master':
+				if( $release = wp_cache_get( $cache_key ) ) {
+					break;
+				}
 				$release = $this->client->getMaster( [ 'id' => $id ] );
+				wp_cache_set( $cache_key, $release );
 				break;
 			default:
 				$release = null;
