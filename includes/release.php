@@ -137,7 +137,7 @@ class Release {
 		];
 
 		$params = wp_parse_args( $options, $params );
-		var_dump($params);
+
 		// get from discogs
 		$discogs = new Discogs\Database();
 		$genres = $discogs->get_genres( $params );
@@ -256,7 +256,7 @@ class Release {
 
 		// get from spotify
 		try {
-			$tracklist_spotify = $this->get_spotify_tracklist();
+			$tracklist_spotify = $this->get_spotify_tracklist( $params );
 			if( $tracklist_spotify ) {
 				$tracklist_spotify = array_map(
 					function($track) {
@@ -347,12 +347,15 @@ class Release {
 	* get a tracklist from spotify
 	* @todo this shoudl be moved to API\Spotify
 	*/
-	function get_spotify_tracklist() {
-		$params = [
+	function get_spotify_tracklist( $params ) {
 
-			'artist' => $this->get_artists(),
-			'title' => $this->post->post_title,
-		];
+		$params = wp_parse_args(
+			$params,
+			[
+				'artist' => $this->get_artists(),
+				'title' => $this->post->post_title,
+			]
+		);
 
 		/**
 		* @since 1.0.0
@@ -495,7 +498,8 @@ class Release {
 		// we don't want to fetch from external source
 		// if we already have an image in the Media Library
 		// with a name that corresponds to the artwork we're looking for
-		if ( $attachment = Media::get_attachment_by_title( $artwork_wp_title ) && ! $force ) {
+		$attachment = Media::get_attachment_by_title( $artwork_wp_title );
+		if ( $attachment ) {
 			$attachment_id = $attachment->ID;
 			// attach Media to Post
 			$wpdb->update(
@@ -509,9 +513,19 @@ class Release {
 			// by default we set the parent product image to be the variations image
 			$this->set_variations_artwork();
 
-			error_log('Artwork found in Media Library for # ' . $this->post->ID . ' - Skipping -');
+			// normal flow
+			// we have an artwork for this artist - title combination, we keep it
+			if ( ! $force ) {
+				error_log('Artwork found in Media Library for # ' . $this->post->ID . ' - Skipping -');
+				return $attachment_id;
+			}
 
-			return $attachment_id;
+			// there is an attachment but as we are 'forcing' the artwork fetch we:
+			// remove attachment from Media Library as we will recreate it later
+			wp_delete_attachment( $attachment_id, true );
+			// state that we don't have an attachment id yet
+			$attachment_id = null; //
+
 		}
 
 		// we don't want to fetch unecessarily

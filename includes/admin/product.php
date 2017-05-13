@@ -31,6 +31,23 @@ class Product {
 		'side',
 		'default'
 	);
+	// add classes to meta box to be able to control it w/ js
+	add_filter(
+		'postbox_classes_product_fetch-release-infos',
+		function( $classes ) {
+			global $post;
+
+			$classes[] = 'wc-recordstore-fetch-release-infos-mb';
+
+			if( ! wc_recordstore_is_music_release($post->ID) ) {
+				// temporary
+				// we'll need our own hiding class
+				$classes[] = 'acf-hidden';
+			}
+
+			return $classes;
+		}
+	);
   }
 
 	/**
@@ -91,6 +108,9 @@ class Product {
 
 		wp_nonce_field(basename(__FILE__), "fetch-release-infos-nonce");
 
+		$post_title = $post->post_title;
+		$post_is_music_release = wc_recordstore_is_music_release( $post->ID );
+
 		include 'views/fetch-release-infos.php';
 
 	}
@@ -128,6 +148,12 @@ class Product {
 
 		$skip_master_release_search = isset($_POST['fetch-release-infos-action-skip-master-release-search']);
 		$params = $skip_master_release_search ? [ 'type' => 'release' ] : [];
+
+		// search title
+		if( isset($_POST['fetch-release-infos-action-search-title'])
+			&& $_POST['fetch-release-infos-action-search-title'] !== '') {
+			$params['title'] = $_POST['fetch-release-infos-action-search-title'];
+		}
 		$this->fetch_release_infos( $post_id, $params );
 	}
 
