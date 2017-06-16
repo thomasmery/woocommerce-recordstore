@@ -24,10 +24,11 @@ abstract class Resource {
 					'User-Agent' => 'wc-record-store/1.0.0 +https://github.com/aaltomeri/wc-record-store',
 					'Authorization' => "Discogs key=$key, secret=$secret"
 				],
+				'timeout' => 10,
 				'debug' =>
 					Settings::$options && isset(Settings::$options['debug'])
 						? Settings::$options['debug']
-						: true,
+						: false,
 				'query' => []
 			]
 		];
