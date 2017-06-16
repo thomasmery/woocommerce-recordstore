@@ -10,6 +10,10 @@ function wc_recordstore_is_music_release( $post_id ) {
 
 	$product = wc_get_product($post_id );
 
+	if( ! $product ) {
+		return false;
+	}
+
 	$is_music_release = false;
 	$music_release_category_term = get_term_by('slug', 'music-release', 'product_cat', ARRAY_A);
 	$music_release_category_id = intval( $music_release_category_term['term_id'] );
