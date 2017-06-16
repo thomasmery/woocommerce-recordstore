@@ -6,6 +6,8 @@
 
 namespace WC_Discogs;
 
+use WC_Discogs\Release;
+
 class Setup {
 
 	public function __construct() {
@@ -55,7 +57,6 @@ class Setup {
 		* default media file renaming
 		*/
 		add_filter( __NAMESPACE__ . '_rename_file_on_attach_from_url', __NAMESPACE__ . '\default_media_file_rename', 10, 2 );
-
 
 		/**
 		* global helpers
