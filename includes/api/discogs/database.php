@@ -104,19 +104,29 @@ class Database extends Resource {
 
 		$type = isset($params['type']) ? $params['type'] : 'release';
 
-		$response = $this->search( [
-			'q' => $params['artist'],
-			'title' => $params['title'],
-			'type' => $type,
-		] );
+		if( ! isset($params['discogs_id']) ) {
 
-		if ( empty($response['results']) ) {
-			return null;
+			$search_params = [
+				'q' => $params['artist'],
+				'title' => $params['title'],
+				'type' => $type,
+			];
+
+			$response = $this->search( $search_params );
+
+			if ( empty($response['results']) ) {
+				return null;
+			}
+
+			$id = $response['results'][0]['id'];
+
+		}
+		else {
+			$id = $params['discogs_id'];
 		}
 
-		$id = $response['results'][0]['id'];
 
-		$cache_key =  "WC_Discogs\API\Discogs_$type-" . md5(serialize($params));
+		$cache_key =  "WC_Discogs\API\Discogs_$type-$id";
 
 		switch($type) {
 			case 'release':
