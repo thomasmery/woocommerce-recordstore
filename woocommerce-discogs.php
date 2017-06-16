@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Plugin Name:     Woocommerce Discogs
- * Plugin URI:      PLUGIN SITE HERE
- * Description:     A plugin to allow getting Artwork & Data from Discogs for a WC Product
+ * Plugin Name:     WooCommerce Record Store
+ * Plugin URI:      http://www.woocommerce-recordstore.com
+ * Description:     A plugin to manage Records in WooCommerce
  * Author:          Aaltomeri
  * Author URI:      http://aaltomeri.net
- * Text Domain:     woocommerce-discogs
+ * Text Domain:     woocommerce-recordstore
  * Domain Path:     /languages
  * Version:         0.1.0
  *
