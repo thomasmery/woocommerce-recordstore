@@ -119,9 +119,9 @@ class Release {
 	* @param $separator
 	* @return array
 	*/
-	public function get_artists_array() {
+	public function get_artists_array( $args = [ 'fields' => 'names' ]) {
 
-		return wp_get_object_terms( $this->post->ID, ARTIST_TAXONOMY, [ 'fields' => 'names' ] );
+		return wp_get_object_terms( $this->post->ID, ARTIST_TAXONOMY, $args );
 
 	}
 
