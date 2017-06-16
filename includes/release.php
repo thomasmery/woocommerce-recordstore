@@ -415,15 +415,69 @@ class Release {
 		$title = $params['title'];
 
 		try {
+
+			// get a token from the API
+			$authorize_url = 'https://accounts.spotify.com/api/token';
+			$encoded_spotify_credentials = base64_encode('a4eb36d1ee214bf6a89ffdbb6a15b48d:a8513aa2d6ec4c51966fc081b9d6cb75');
+
+			$cache_key =  "WC_Discogs\Release\Spotify_Token_" . substr($encoded_spotify_credentials, 0, 12);
+			$access_token = wp_cache_get( $cache_key );
+
+			if( ! $access_token ) {
+
+				$response = wp_safe_remote_post(
+					$authorize_url,
+					[
+						'headers' => [
+							// HARD CODED SPOTIFY KEY & SECRET (DEV@AALTOMERI.NET)
+							// @TODO MOVE THIS TO SETTINGS !!!!!!
+							'Authorization' => 'Basic ' . $encoded_spotify_credentials
+						],
+						'body' => [
+							'grant_type' => 'client_credentials'
+						]
+					]
+				);
+
+				//turn WP_Error into an Exception
+				if ( is_wp_error($response) ) {
+					throw new Exception($response->get_error_message(), $response->get_error_code());
+				}
+
+				$response_body = json_decode($response['body']);
+
+				if( ! isset($response_body->access_token) ) {
+					return [];
+				}
+
+				$access_token = $response_body->access_token;
+				wp_cache_set( $cache_key, $access_token, null, $response_body->expires_in );
+
+			}
+
 			// search for track with title and artist
 			// TODO use Guzzle for consistency
-			$search_url = "https://api.spotify.com/v1/search?q=album:{$title}%20artist:{$artist}&type=album";
-			$response = wp_remote_get($search_url,['Accept' => 'application/json']);
+			$search_url = "https://api.spotify.com/v1/search?q=album:{$title}+artist:{$artist}&type=album";
+			$response = wp_remote_get(
+				$search_url,
+				[
+					'headers' => [
+						'Accept' => 'application/json',
+						'Authorization' => 'Bearer ' . $access_token
+					]
+				]
+			);
+
+			//turn WP_Error into an Exception
+			if ( is_wp_error($response) ) {
+				throw new Exception($response->get_error_message(), $response->get_error_code());
+			}
+
 			$response_body = json_decode($response['body']);
 
 			if( ! $response_body
-				|| ! $response_body->albums
-				|| ! $response_body->albums->items
+				|| ! isset($response_body->albums)
+				|| ! isset($response_body->albums->items)
 			) {
 				return [];
 			}
@@ -431,7 +485,20 @@ class Release {
 			$tracklist = [];
 			if ($response_body->albums->items) {
 				$album_url = $response_body->albums->items[0]->href;
-				$response = wp_remote_get($album_url,['Accept' => 'application/json']);
+				$response = wp_remote_get($album_url,
+					[
+						'headers' => [
+							'Accept' => 'application/json',
+							'Authorization' => 'Bearer ' . $access_token
+						]
+					]
+				);
+
+				//turn WP_Error into an Exception
+				if ( is_wp_error($response) ) {
+					throw new Exception($response->get_error_message(), $response->get_error_code());
+				}
+
 				$response_body = json_decode($response['body']);
 				return $response_body->tracks->items;
 			}
