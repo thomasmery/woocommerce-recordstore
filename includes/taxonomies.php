@@ -41,7 +41,7 @@ function register_artist_taxonomy() {
 		'hierarchical' 		=> false,
 		'show_tagcloud' 	=> false,
 		'show_in_nav_menus' => true,
-		'rewrite' 			=> array('slug' => 'genre', 'with_front' => false ),
+		'rewrite' 			=> array('slug' => 'artist', 'with_front' => false ),
 		'meta_box_cb' 		=> false,
 		'sort'				=> true,
 	];
