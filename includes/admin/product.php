@@ -17,6 +17,39 @@ class Product {
 
 		add_action( 'post_row_actions', [ $this, 'render_product_row_action_link' ], 10, 2);
 		add_action( 'admin_action_fetch_release_infos', [ $this, 'admin_action_fetch_release_infos']);
+
+		// a Release slug (post_name) must contain the artist(s) name(s)
+		add_filter(
+			'wp_unique_post_slug',
+			[ __CLASS__, 'generate_release_slug'],
+			10,
+			6
+		);
+	}
+
+
+	/**
+	* Generates a slug for a Release
+	* by appending artists names to Release title
+	*/
+	public static function generate_release_slug( $slug, $post_ID, $post_status, $post_type, $post_parent, $original_slug ) {
+
+		if( 'product' !== $post_type
+			|| ! wc_recordstore_is_music_release( $post_ID ) ) {
+			return $slug;
+		}
+
+		$release = new Release( $post_ID );
+
+		// we only want to change the slug if the original slug is the sanitized title
+		// indicating that the slug has not been modified by the user
+		// ( as the wp_insert_post function will set the slug to the sanitized title when none has been specified )
+		if( $slug !== sanitize_title( $release->post->post_title ) ) {
+			return $slug;
+		}
+
+		return $release->generate_slug();
+
 	}
 
 	/**
@@ -154,7 +187,31 @@ class Product {
 			&& $_POST['fetch-release-infos-action-search-title'] !== '') {
 			$params['title'] = $_POST['fetch-release-infos-action-search-title'];
 		}
+		// Discogs Code
+		if( isset($_POST['fetch-release-infos-action-discogs-id'])
+			&& $_POST['fetch-release-infos-action-discogs-id'] !== '') {
+			$params['discogs_id'] = $_POST['fetch-release-infos-action-discogs-id'];
+			// extract Discogs ID & type code copied from site for convenience
+			// [m3123123] > 'm' & '3123123'' for instance
+			$is_usable_discogs_code = preg_match("/^\[?(r|m)?([0-9]+)\]?/", $params['discogs_id'], $discogs_id_parts);
+			if( ! $is_usable_discogs_code ) {
+				$this->fetch_release_infos( $post_id, $params );
+				return;
+			}
+			// automatically change 'type' if hint found in Discogs ID
+			$discogs_id_type = isset($discogs_id_parts[1]) ? $discogs_id_parts[1] : '';
+			switch ( $discogs_id_type ) {
+				case 'm':
+					$params['type'] = 'master';
+					break;
+				case 'r':
+					$params['type'] = 'release';
+					break;
+			}
+			$params['discogs_id'] = isset($discogs_id_parts[2]) ? $discogs_id_parts[2] : '';
+		}
 		$this->fetch_release_infos( $post_id, $params );
+		return;
 	}
 
 	/*
@@ -176,10 +233,14 @@ class Product {
 		);
 
 		try {
+			$start = time();
 			$release->set_artwork( true, $params );
 			$release->set_genres_and_styles( $params );
 			$release->set_tracklist( $params );
 			$release->set_year( $params );
+			$end = time();
+			$elapsed = $end - $start;
+			error_log('Fetching took:' . $elapsed);
 		}
 		catch( Exception $e ) {
 			wp_die( sprintf( __( 'Could not fetch release infos - Operation failed with this message: %s', 'wc-recordstore' ), $e->getMessage() ) );

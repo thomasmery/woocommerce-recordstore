@@ -47,6 +47,53 @@ class Release {
 	}
 
 
+	/**
+	* Generate a slug for this release
+	*/
+	public function generate_slug() {
+
+		$title = $this->post->post_title;
+		$artists = $this->get_artists();
+		$artists_slug = sanitize_title( $artists );
+		$title_slug = sanitize_title( $title );
+
+		if( ! $artists ) {
+			return $title_slug;
+		}
+
+		return sanitize_title(
+			$artists_slug
+			. ' - '
+			. $title_slug
+		);
+
+	}
+
+	/**
+	* updates this Release post slug/name
+	*/
+	public function set_slug() {
+
+		global $wpdb;
+
+		$success = false;
+
+		$slug = $this->generate_slug();
+
+		try {
+			$updated_rows = $wpdb->update( $wpdb->posts, array( 'post_name' => $slug), [ 'ID' => $this->post->ID ] );
+		}
+		catch(Excpetion $e) {
+			echo 'Could not update Release #' . $this->post->ID . '. Error: ' . $e->getMessage();
+		}
+
+		if( ! $updated_rows ) {
+			return false;
+		}
+
+		return $slug;
+
+	}
 
 	/**
 	* Artists
