@@ -37,7 +37,7 @@ class Database extends Resource {
 		$release = $this->get_main_release($params);
 		$genres = [];
 		if ($release) {
-			return $release['genres'];
+			return isset( $release['genres'] ) ? $release['genres'] : [];
 		}
 		return $genres;
 	}
@@ -46,7 +46,7 @@ class Database extends Resource {
 		$release = $this->get_main_release($params);
 		$styles = [];
 		if ($release) {
-			return $release['styles'];
+			return isset( $release['styles'] ) ? $release['styles'] : [];
 		}
 		return $styles;
 	}
@@ -189,7 +189,8 @@ class Database extends Resource {
 			);
 			// let's go again
 			$params['final'] = true;
-			$this->get_main_release( $params );
+			$params['type'] = 'master';
+			$release = $this->get_main_release( $params );
 		}
 		return $release;
 
