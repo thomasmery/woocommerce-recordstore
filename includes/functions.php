@@ -35,30 +35,29 @@ function wc_recordstore_artists( $post_id ) {
 // get archive links for artists
 function wc_recordstore_artists_term_links( $post_id, $format = 'string' ) {
     $release = new Release( $post_id );
-    $artists_names = $release->get_artists_array();
-
+    $artists_terms = $release->get_artists_array( [ 'fields' => 'all' ]);
 	if( $format === 'array' ) {
 		return array_map(
-			function( $artist ) {
+			function( $artist_term ) {
 				return [
-					'name' => $artist,
-					'url' => get_term_link( $artist, 'wc_discogs_artist')
+					'name' => $artist_term->name,
+					'url' => get_term_link( $artist_term->term_id, 'wc_discogs_artist')
 				];
 			},
-			$artists_names
+			$artists_terms
 		);
 	}
 
     return implode(
         ', ',
         array_map(
-            function($artist) {
+            function($artist_term) {
                 return '<a title="'
-                    . __('Browse all of ' . $artist . ' releases', 'wc_recordstore')
-                    . '"href="' . esc_url( get_term_link( $artist, 'wc_discogs_artist') )
-                    . '">' . $artist . '</a>';
+                    . __('Browse all of ' . $artist_term->name . ' releases', 'wc_recordstore')
+                    . '"href="' . esc_url( get_term_link( $artist_term->term_id, 'wc_discogs_artist') )
+                    . '">' . $artist_term->name . '</a>';
             },
-            $artists_names
+            $artists_terms
         )
     );
 }
