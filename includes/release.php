@@ -34,10 +34,6 @@ class Release {
 
 		$this->post = $post;
 
-		// caching
-		$this->_artists = $this->get_artists();
-		$this->_genres = $this->get_genres();
-		$this->_styles = $this->get_styles();
 	}
 
 
