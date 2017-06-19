@@ -10,7 +10,7 @@
  * Domain Path:     /languages
  * Version:         0.1.0
  *
- * @package         Woocommerce_Discogs
+ * @package         Woocommerce_Recordstore
  */
 
 namespace WC_Discogs;
@@ -38,6 +38,18 @@ class Main {
 
 	public static function register() {
 
+		// get ENV vars from specific .env file that we put above the webroot
+		$root = realpath($_SERVER['DOCUMENT_ROOT'] . '/../');
+		$dotenv = new \Dotenv\Dotenv($root, 'wc-recordstore.env');
+		if (file_exists($root . '/wc-recordstore.env')) {
+			$dotenv->load();
+		}
+		else {
+			add_action('admin_notices', [ '\WC_Discogs\Main', 'noCredentialsNotice' ] );
+			deactivate_plugins(\WC_Discogs\PLUGIN_FILE);
+			return false;
+		}
+
 		$plugin = new self();
 
 		add_action( 'plugins_loaded', array( $plugin, 'run' ) );
@@ -45,12 +57,6 @@ class Main {
 		register_activation_hook( __FILE__, [ $plugin, 'activate'] );
 		register_deactivation_hook( __FILE__, [ $plugin, 'deactivate'] );
 		register_uninstall_hook( __FILE__, [ 'WC_Discogs::uninstall' ]);
-
-		// get ENV vars from .env file
-		$dotenv = new \Dotenv\Dotenv(\WC_Discogs\PLUGIN_PATH);
-		if (file_exists(\WC_Discogs\PLUGIN_PATH . '/.env')) {
-			$dotenv->load();
-		}
 
 	}
 
@@ -71,6 +77,18 @@ class Main {
 
 	public function deactivate() {}
 	static public function uninstall() {}
+
+
+	public static function noCredentialsNotice() {
+
+		$message = __('WC Recordstore requires that you have a wc-recordstore.env file in the directory <em>above the webroot</em>. <strong>The plugin has been de-activated.</strong>');
+		echo <<<EOT
+			<div class="notice notice-error">
+				<p>{$message}</p>
+			</div>
+EOT;
+
+	}
 
 }
 
