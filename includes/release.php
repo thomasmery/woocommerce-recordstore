@@ -418,7 +418,15 @@ class Release {
 
 			// get a token from the API
 			$authorize_url = 'https://accounts.spotify.com/api/token';
-			$encoded_spotify_credentials = base64_encode('a4eb36d1ee214bf6a89ffdbb6a15b48d:a8513aa2d6ec4c51966fc081b9d6cb75');
+			$key = getenv('SPOTIFY_API_CONSUMER_KEY');
+			$secret = getenv('SPOTIFY_API_CONSUMER_SECRET');
+
+			// do not proceed if no credentials found
+			if( ! $key || ! $secret ) {
+				throw new Exception('get_spotify_tracklist: Spotify key and/or secret are missing.');
+			}
+
+			$encoded_spotify_credentials = base64_encode("$key:$secret");
 
 			$cache_key =  "WC_Discogs\Release\Spotify_Token_" . substr($encoded_spotify_credentials, 0, 12);
 			$access_token = wp_cache_get( $cache_key );
