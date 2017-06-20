@@ -184,10 +184,10 @@ function orderby_taxonomy_clauses( $clauses, $wp_query ) {
   $orderby_arg = $wp_query->get('orderby');
   if ( ! empty( $orderby_arg ) && substr_count( $orderby_arg, 'taxonomy.' ) ) {
     global $wpdb;
-    $bytax = "GROUP_CONCAT({$wpdb->terms}.name ORDER BY name ASC)";
+    $bytax = "GROUP_CONCAT(orderby_taxonomy_terms.name ORDER BY name ASC)";
     $array = explode( ' ', $orderby_arg );
     if ( ! isset( $array[1] ) ) {
-      $array = array( $bytax, "{$wpdb->posts}.post_date" );
+      $array = array( $bytax, "{$wpdb->posts}.post_title" );
       $taxonomy = str_replace( 'taxonomy.', '', $orderby_arg );
     } else {
       foreach ( $array as $i => $t ) {
@@ -210,13 +210,14 @@ function orderby_taxonomy_clauses( $clauses, $wp_query ) {
         return ( strpos($a, 'GROUP_CONCAT') === 0 ) ? $a . $ordertax : $a . $order;
       }, $array )
     );
-    $clauses['join'] .= " LEFT OUTER JOIN {$wpdb->term_relationships} ";
-    $clauses['join'] .= "ON {$wpdb->posts}.ID = {$wpdb->term_relationships}.object_id";
-    $clauses['join'] .= " LEFT OUTER JOIN {$wpdb->term_taxonomy} ";
-    $clauses['join'] .= "USING (term_taxonomy_id)";
-    $clauses['join'] .= " LEFT OUTER JOIN {$wpdb->terms} USING (term_id)";
-    $clauses['groupby'] = "object_id";
-    $clauses['where'] .= " AND (taxonomy = '{$taxonomy}' OR taxonomy IS NULL)";
+    $clauses['join'] .= " LEFT OUTER JOIN {$wpdb->term_relationships} as orderby_taxonomy_tr";
+    $clauses['join'] .= " ON {$wpdb->posts}.ID = orderby_taxonomy_tr.object_id";
+    $clauses['join'] .= " LEFT OUTER JOIN {$wpdb->term_taxonomy} as orderby_taxonomy_tt";
+	$clauses['join'] .= " ON orderby_taxonomy_tr.term_taxonomy_id = orderby_taxonomy_tt.term_taxonomy_id";
+    $clauses['join'] .= " LEFT OUTER JOIN {$wpdb->terms} as orderby_taxonomy_terms";
+	$clauses['join'] .= " ON orderby_taxonomy_tt.term_id = orderby_taxonomy_terms.term_id";
+    $clauses['groupby'] = "orderby_taxonomy_tr.object_id";
+    $clauses['where'] .= " AND (orderby_taxonomy_tt.taxonomy = '{$taxonomy}' OR orderby_taxonomy_tt.taxonomy IS NULL)";
   }
   return $clauses;
 }
