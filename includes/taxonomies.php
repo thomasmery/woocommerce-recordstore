@@ -126,3 +126,98 @@ function register_style_taxonomy() {
 	];
 	register_taxonomy( STYLE_TAXONOMY, $object_types, $args);
 }
+
+
+/** CUSTOM SORTING **/
+
+/**
+* Enable sorting by artists
+*/
+
+// add custom filters to dropdown
+add_filter(
+    'woocommerce_catalog_orderby',
+    function ( $array ) {
+
+        $array['taxonomy.' . ARTIST_TAXONOMY . '-asc'] = __('Sort by artists - A-Z', 'woocommerce-recordstore');
+        $array['taxonomy.' . ARTIST_TAXONOMY . '-desc'] = __('Sort by artists - Z-A', 'woocommerce-recordstore');
+
+        return $array;
+    },
+    10,
+    1
+);
+
+// allow custom filters in WC order args
+// WC will try to set its default orderby if it does not recognize what is passed
+add_filter(
+    'woocommerce_get_catalog_ordering_args',
+    function ( $args ) {
+
+        $custom_filters = [
+			'taxonomy.' . ARTIST_TAXONOMY . '-asc',
+			'taxonomy.' . ARTIST_TAXONOMY . '-desc'
+		];
+
+        if( isset($_GET['orderby']) && in_array($_GET['orderby'], $custom_filters)) {
+
+			$orderby_value = $_GET['orderby'];
+
+			// Get order + orderby args from string
+			$orderby_value = explode( '-', $orderby_value );
+			$orderby       = esc_attr( $orderby_value[0] );
+			$order         = ! empty( $orderby_value[1] ) ? $orderby_value[1] : 'ASC';
+
+            $args['orderby'] = $orderby;
+            $args['order'] = $order;
+        }
+
+        return $args;
+    },
+    10,
+    1
+);
+
+// the main function that will modify the WP_Query clauses
+// originally found here : https://wordpress.stackexchange.com/questions/137208/order-posts-by-taxonomy-and-meta-value
+function orderby_taxonomy_clauses( $clauses, $wp_query ) {
+  $orderby_arg = $wp_query->get('orderby');
+  if ( ! empty( $orderby_arg ) && substr_count( $orderby_arg, 'taxonomy.' ) ) {
+    global $wpdb;
+    $bytax = "GROUP_CONCAT({$wpdb->terms}.name ORDER BY name ASC)";
+    $array = explode( ' ', $orderby_arg );
+    if ( ! isset( $array[1] ) ) {
+      $array = array( $bytax, "{$wpdb->posts}.post_date" );
+      $taxonomy = str_replace( 'taxonomy.', '', $orderby_arg );
+    } else {
+      foreach ( $array as $i => $t ) {
+        if ( substr_count( $t, 'taxonomy.' ) )  {
+          $taxonomy = str_replace( 'taxonomy.', '', $t );
+          $array[$i] = $bytax;
+        } elseif ( $t === 'meta_value' || $t === 'meta_value_num' ) {
+          $cast = ( $t === 'meta_value_num' ) ? 'SIGNED' : 'CHAR';
+          $array[$i] = "CAST( {$wpdb->postmeta}.meta_value AS {$cast} )";
+        } else {
+          $array[$i] = "{$wpdb->posts}.{$t}";
+        }
+      }
+    }
+    $order = strtoupper( $wp_query->get('order') ) === 'ASC' ? ' ASC' : ' DESC';
+    $ot = strtoupper( $wp_query->get('ordertax') );
+    $ordertax = $ot === 'DESC' || $ot === 'ASC' ? " $ot" : " $order";
+    $clauses['orderby'] = implode(', ',
+      array_map( function($a) use ( $ordertax, $order ) {
+        return ( strpos($a, 'GROUP_CONCAT') === 0 ) ? $a . $ordertax : $a . $order;
+      }, $array )
+    );
+    $clauses['join'] .= " LEFT OUTER JOIN {$wpdb->term_relationships} ";
+    $clauses['join'] .= "ON {$wpdb->posts}.ID = {$wpdb->term_relationships}.object_id";
+    $clauses['join'] .= " LEFT OUTER JOIN {$wpdb->term_taxonomy} ";
+    $clauses['join'] .= "USING (term_taxonomy_id)";
+    $clauses['join'] .= " LEFT OUTER JOIN {$wpdb->terms} USING (term_id)";
+    $clauses['groupby'] = "object_id";
+    $clauses['where'] .= " AND (taxonomy = '{$taxonomy}' OR taxonomy IS NULL)";
+  }
+  return $clauses;
+}
+add_filter( 'posts_clauses', __NAMESPACE__ . '\orderby_taxonomy_clauses', 10, 2 );
