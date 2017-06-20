@@ -53,7 +53,7 @@ function wc_recordstore_artists_term_links( $post_id, $format = 'string' ) {
         array_map(
             function($artist_term) {
                 return '<a title="'
-                    . __('Browse all of ' . $artist_term->name . ' releases', 'wc_recordstore')
+                    . __('Browse all of ' . $artist_term->name . ' releases', 'woocommerce-recordstore')
                     . '"href="' . esc_url( get_term_link( $artist_term->term_id, 'wc_discogs_artist') )
                     . '">' . $artist_term->name . '</a>';
             },

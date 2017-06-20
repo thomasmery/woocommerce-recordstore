@@ -23,7 +23,7 @@ function register_product_categories () {
 	- Genre
 	- Style
 
-	their name is prepened with the plugin NAMESPACE to prevent conflicts
+	their name is prepended with the plugin NAMESPACE to prevent conflicts
 	with user/plugin created taxonomies
 
 */
