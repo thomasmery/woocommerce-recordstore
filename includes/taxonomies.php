@@ -181,7 +181,7 @@ add_filter(
 // the main function that will modify the WP_Query clauses
 // originally found here : https://wordpress.stackexchange.com/questions/137208/order-posts-by-taxonomy-and-meta-value
 function orderby_taxonomy_clauses( $clauses, $wp_query ) {
-  $orderby_arg = $wp_query->get('orderby');
+	  $orderby_arg = $wp_query->get('orderby');
   if ( ! empty( $orderby_arg ) && substr_count( $orderby_arg, 'taxonomy.' ) ) {
     global $wpdb;
     $bytax = "GROUP_CONCAT(orderby_taxonomy_terms.name ORDER BY name ASC)";
