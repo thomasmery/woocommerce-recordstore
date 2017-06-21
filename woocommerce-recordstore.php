@@ -46,7 +46,7 @@ class Main {
 		}
 		else {
 			add_action('admin_notices', [ '\WC_Discogs\Main', 'noCredentialsNotice' ] );
-			deactivate_plugins(\WC_Discogs\PLUGIN_FILE);
+			add_action('admin_init', function() { deactivate_plugins(\WC_Discogs\PLUGIN_FILE); });
 			return false;
 		}
 
