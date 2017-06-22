@@ -39,12 +39,13 @@ class Main {
 	public static function register() {
 
 		// get ENV vars from specific .env file that we put above the webroot
-		$root = realpath($_SERVER['DOCUMENT_ROOT'] . '/../');
+		$root = realpath(ABSPATH . '/../../');
 		$dotenv = new \Dotenv\Dotenv($root, 'wc-recordstore.env');
 		if (file_exists($root . '/wc-recordstore.env')) {
 			$dotenv->load();
 		}
 		else {
+			error_log('WC Recordstore requires that you have a wc-recordstore.env file in the directory above the webroot. The plugin has been de-activated.');
 			add_action('admin_notices', [ '\WC_Discogs\Main', 'noCredentialsNotice' ] );
 			add_action('admin_init', function() { deactivate_plugins(\WC_Discogs\PLUGIN_FILE); });
 			return false;
