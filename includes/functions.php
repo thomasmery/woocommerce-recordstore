@@ -34,7 +34,17 @@ function wc_recordstore_artists( $post_id ) {
 
 // get archive links for artists
 function wc_recordstore_artists_term_links( $post_id, $format = 'string' ) {
-    $release = new Release( $post_id );
+
+	$product = wc_get_product($post_id);
+
+	try {
+    	$release = new Release( $product->get_type() === 'variation' ?  $product->get_parent_id() : $product->get_id() );
+	}
+	catch (Exception $e) {
+		error_log( $e->getMessage() );
+		return '';
+	}
+
     $artists_terms = $release->get_artists_array( [ 'fields' => 'all' ]);
 	if( $format === 'array' ) {
 		return array_map(
