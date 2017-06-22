@@ -236,10 +236,7 @@ function orderby_taxonomy_clauses( $clauses, $wp_query ) {
 		$clauses['join'] .= " LEFT OUTER JOIN {$wpdb->terms} as orderby_taxonomy_terms";
 		$clauses['join'] .= " ON orderby_taxonomy_tt.term_id = orderby_taxonomy_terms.term_id";
 		$clauses['groupby'] = "orderby_taxonomy_tr.object_id";
-		$clauses['where'] .= " AND (orderby_taxonomy_tt.taxonomy = '{
-		$taxonomy
-	}
-	' OR orderby_taxonomy_tt.taxonomy IS NULL)";
+		$clauses['where'] .= " AND (orderby_taxonomy_tt.taxonomy = '{$taxonomy}' OR orderby_taxonomy_tt.taxonomy IS NULL)";
 	}
 	return $clauses;
 }
