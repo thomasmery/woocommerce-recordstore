@@ -140,7 +140,7 @@ function enable_artists_search() {
 		function ($where, $query){
 			global $wpdb;
 			if ($query->is_search()) {
-				$where .= " OR (wc_rs_as_t.name LIKE '%".get_search_query()."%' AND {$wpdb->posts}.post_status = 'publish')";
+				$where .= " OR (wc_rs_as_t.name LIKE '%".get_search_query()."%' AND {$wpdb->posts}.post_status = 'publish') AND wp_posts.post_type = 'product'";
 			}
 			return $where;
 		},
