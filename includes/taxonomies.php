@@ -139,8 +139,10 @@ function enable_artists_search() {
 		'posts_where',
 		function ($where, $query){
 			global $wpdb;
-			if ($query->is_search()) {
-				$where .= " OR (wc_rs_as_t.name LIKE '%".get_search_query()."%' AND {$wpdb->posts}.post_status = 'publish') AND wp_posts.post_type = 'product'";
+			if ($query->is_search() && $query->query['post_type'] === 'product') {
+				$where .= " OR (wc_rs_as_t.name LIKE '%" .
+					get_search_query() .
+					"%' AND {$wpdb->posts}.post_status = 'publish') AND wp_posts.post_type = 'product'";
 			}
 			return $where;
 		},
@@ -151,7 +153,7 @@ function enable_artists_search() {
 		'posts_join',
 		function ($join, $query){
 			global $wpdb;
-			if ($query->is_search()) {
+			if ($query->is_search() && $query->query['post_type'] === 'product') {
 				$join .= "LEFT JOIN {$wpdb->term_relationships} wc_rs_as_tr
 				ON {$wpdb->posts}.ID = wc_rs_as_tr.object_id
 				INNER JOIN {$wpdb->term_taxonomy} wc_rs_as_tt
@@ -170,7 +172,12 @@ function enable_artists_search() {
 
 			// we need to group on post ID
 			$groupby_id = "{$wpdb->posts}.ID";
-			if(!$query->is_search() || strpos($groupby, $groupby_id) !== false) return $groupby;
+			if(!$query->is_search()
+				|| strpos($groupby, $groupby_id) !== false
+				|| $query->query['post_type'] !== 'product') {
+
+					return $groupby;
+			}
 
 			// groupby was empty, use ours
 			if(!strlen(trim($groupby))) return $groupby_id;
