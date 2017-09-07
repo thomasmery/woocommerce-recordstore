@@ -139,10 +139,18 @@ function enable_artists_search() {
 		'posts_where',
 		function ($where, $query){
 			global $wpdb;
-			if ($query->is_search() && $query->query['post_type'] === 'product') {
-				$where .= " OR (wc_rs_as_t.name LIKE '%" .
-					get_search_query() .
-					"%' AND {$wpdb->posts}.post_status = 'publish') AND wp_posts.post_type = 'product'";
+			if ($query->is_search()) {
+				$where .= " OR (wc_rs_as_t.name LIKE '%" . get_search_query() . "%'
+				 AND {$wpdb->posts}.post_status = 'publish'";
+
+				 // we don't want to get results on all taxonomies
+				 $where .= " AND wc_rs_as_tt.taxonomy = '" . ARTIST_TAXONOMY . "'";
+
+				if( isset($query->query['post_type'])) {
+					$where .= " AND wp_posts.post_type = '{$query->query['post_type']}'";
+				}
+
+				$where .= ')';
 			}
 			return $where;
 		},
@@ -153,12 +161,12 @@ function enable_artists_search() {
 		'posts_join',
 		function ($join, $query){
 			global $wpdb;
-			if ($query->is_search() && $query->query['post_type'] === 'product') {
+			if ($query->is_search()) {
 				$join .= "LEFT JOIN {$wpdb->term_relationships} wc_rs_as_tr
 				ON {$wpdb->posts}.ID = wc_rs_as_tr.object_id
-				INNER JOIN {$wpdb->term_taxonomy} wc_rs_as_tt
+				LEFT JOIN {$wpdb->term_taxonomy} wc_rs_as_tt
 				ON wc_rs_as_tt.term_taxonomy_id=wc_rs_as_tr.term_taxonomy_id
-				INNER JOIN {$wpdb->terms} wc_rs_as_t
+				LEFT JOIN {$wpdb->terms} wc_rs_as_t
 				ON wc_rs_as_t.term_id = wc_rs_as_tt.term_id";
 			}
 			return $join;
@@ -173,8 +181,7 @@ function enable_artists_search() {
 			// we need to group on post ID
 			$groupby_id = "{$wpdb->posts}.ID";
 			if(!$query->is_search()
-				|| strpos($groupby, $groupby_id) !== false
-				|| $query->query['post_type'] !== 'product') {
+				|| strpos($groupby, $groupby_id) !== false) {
 
 					return $groupby;
 			}
