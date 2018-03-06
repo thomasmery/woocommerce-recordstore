@@ -136,10 +136,15 @@ function register_style_taxonomy() {
 
 function enable_artists_search() {
 	add_filter(
-		'posts_where',
+		'posts_search',
 		function ($where, $query){
 			global $wpdb;
-			if ($query->is_search()) {
+			if ($query->is_search() && get_search_query()) {
+
+				// add a grouping parenthese
+				// we need to group the artist search condition with the search query
+				$where = preg_replace('/^(\s+?AND)/', '$1 (', $where);
+
 				$where .= " OR (wc_rs_as_t.name LIKE '%" . get_search_query() . "%'
 				 AND {$wpdb->posts}.post_status = 'publish'";
 
@@ -149,8 +154,10 @@ function enable_artists_search() {
 				if( isset($query->query['post_type'])) {
 					$where .= " AND wp_posts.post_type = '{$query->query['post_type']}'";
 				}
+				
+				// close the groups
+				$where .= ') )';
 
-				$where .= ')';
 			}
 			return $where;
 		},
@@ -161,8 +168,8 @@ function enable_artists_search() {
 		'posts_join',
 		function ($join, $query){
 			global $wpdb;
-			if ($query->is_search()) {
-				$join .= "LEFT JOIN {$wpdb->term_relationships} wc_rs_as_tr
+			if ($query->is_search() && get_search_query()) {
+				$join .= " LEFT JOIN {$wpdb->term_relationships} wc_rs_as_tr
 				ON {$wpdb->posts}.ID = wc_rs_as_tr.object_id
 				LEFT JOIN {$wpdb->term_taxonomy} wc_rs_as_tt
 				ON wc_rs_as_tt.term_taxonomy_id=wc_rs_as_tr.term_taxonomy_id
