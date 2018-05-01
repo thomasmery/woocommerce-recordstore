@@ -21,11 +21,14 @@ class Setup {
 		/*
 		* ACF
 		*/
-		add_filter( 'acf/settings/path', [ $this, 'acf_path' ] );
-		add_filter( 'acf/settings/dir', [ $this, 'acf_dir' ] );
-		add_filter('acf/settings/show_admin', '__return_false');
-
-		require_once( PLUGIN_PATH . '/vendor/acf/acf.php' );
+		if( ! class_exists('acf')) {
+			add_filter( 'acf/settings/path', [ $this, 'acf_path' ] );
+			add_filter( 'acf/settings/dir', [ $this, 'acf_dir' ] );
+			add_filter('acf/settings/show_admin', '__return_false');
+	
+			require_once( PLUGIN_PATH . '/vendor/acf/acf.php' );
+		}
+		
 		require_once( PLUGIN_PATH . '/includes/custom-fields/acf.php' );
 
 		/*
