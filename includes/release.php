@@ -21,6 +21,10 @@ class Release {
 
 		$post = get_post( $post_id );
 
+		if( ! $post ) {
+			return false;
+		}
+
 		// safeguard
 		// a Release is a Parent Product
 		if( $post->post_type !== 'product') {
@@ -34,9 +38,62 @@ class Release {
 
 		$this->post = $post;
 
+		$this->_artists = $this->get_artists();
+		$this->_genres = $this->get_genres();
+		$this->_styles = $this->get_styles();
+		$this->_release_date_year = $this->get_year();
+
+		return $this->post->ID;
 	}
 
 
+	/**
+	* Generate a slug for this release
+	*/
+	public function generate_slug() {
+
+		$title = $this->post->post_title;
+		$artists = $this->get_artists();
+		$artists_slug = sanitize_title( $artists );
+		$title_slug = sanitize_title( $title );
+
+		if( ! $artists ) {
+			return $title_slug;
+		}
+
+		return sanitize_title(
+			$artists_slug
+			. ' - '
+			. $title_slug
+		);
+
+	}
+
+	/**
+	* updates this Release post slug/name
+	*/
+	public function set_slug() {
+
+		global $wpdb;
+
+		$success = false;
+
+		$slug = $this->generate_slug();
+
+		try {
+			$updated_rows = $wpdb->update( $wpdb->posts, array( 'post_name' => $slug), [ 'ID' => $this->post->ID ] );
+		}
+		catch(Excpetion $e) {
+			echo 'Could not update Release #' . $this->post->ID . '. Error: ' . $e->getMessage();
+		}
+
+		if( ! $updated_rows ) {
+			return false;
+		}
+
+		return $slug;
+
+	}
 
 	/**
 	* Artists
@@ -45,15 +102,27 @@ class Release {
 	/**
 	* get artists names separated by $separator
 	* @param $separator
+	* @return string
 	*/
-	public function get_artists( $separator = ', ') {
+	public function get_artists( $separator = ', ' ) {
 
 		$this->_artists = implode(
 			$separator,
-			wp_get_object_terms( $this->post->ID, ARTIST_TAXONOMY, [ 'fields' => 'names' ] )
+			$this->get_artists_array()
 		);
 
 		return $this->_artists;
+	}
+
+	/**
+	* get artists names as an array of strings
+	* @param $separator
+	* @return array
+	*/
+	public function get_artists_array( $args = [ 'fields' => 'names' ]) {
+
+		return wp_get_object_terms( $this->post->ID, ARTIST_TAXONOMY, $args );
+
 	}
 
 
@@ -88,11 +157,37 @@ class Release {
 	/**
 	* will fetch genres and styles from an external API
 	*/
-	public function set_genres_and_styles( array $options = [ 'keep' => false ] ) {
+	public function set_genres_and_styles( array $options = [ 'keep' => false, 'refresh' => false ] ) {
+
+		$this->set_genres( $options );
+		$this->set_styles( $options );
+
+	}
+
+	public function set_genres( array $options = [] ) {
+
+		$defaults = [ 'keep' => false, 'refresh' => false ];
+
+		$options = wp_parse_args( $options, $defaults );
+
+		if( $this->_genres && ! $options['refresh'] ) {
+			error_log("genres exist for # " . $this->post->ID . " - Skipping - " );
+			return;
+		}
+
+		error_log('Fetching Genres for # ' . $this->post->ID);
+
+		$params = [
+			'title' => $this->post->post_title,
+			'artist' => $this->get_artists(),
+			'type' => 'master',
+		];
+
+		$params = wp_parse_args( $options, $params );
+
 		// get from discogs
 		$discogs = new Discogs\Database();
-		$genres = $discogs->get_genres( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
-		$styles = $discogs->get_styles( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
+		$genres = $discogs->get_genres( $params );
 
 		// keep existing terms
 		// keep order (term_order)
@@ -101,13 +196,45 @@ class Release {
 				wp_get_object_terms( $this->post->ID, GENRE_TAXONOMY, [ 'fields' => 'names', 'orderby' => 'term_order' ] ),
 				$genres
 			);
+		}
+
+		wp_set_object_terms( $this->post->ID, $genres, GENRE_TAXONOMY);
+	}
+
+	public function set_styles( array $options = [] ) {
+
+		$defaults = [ 'keep' => false, 'refresh' => false ];
+
+		$options = wp_parse_args( $options, $defaults );
+
+		if( $this->_styles && ! $options['refresh'] ) {
+			error_log("styles exist for # " . $this->post->ID . " - Skipping - " );
+			return;
+		}
+
+		error_log('Fetching Styles for # ' . $this->post->ID);
+
+		$params = [
+			'title' => $this->post->post_title,
+			'artist' => $this->get_artists(),
+			'type' => 'master',
+		];
+
+		$params = wp_parse_args( $options, $params );
+
+		// get from discogs
+		$discogs = new Discogs\Database();
+		$styles = $discogs->get_styles( $params );
+
+		// keep existing terms
+		// keep order (term_order)
+		if( $options['keep'] ) {
 			$styles = array_merge(
 				wp_get_object_terms( $this->post->ID, STYLE_TAXONOMY, [ 'fields' => 'names', 'orderby' => 'term_order' ] ),
 				$styles
 			);
 		}
 
-		wp_set_object_terms( $this->post->ID, $genres, GENRE_TAXONOMY);
 		wp_set_object_terms( $this->post->ID, $styles, STYLE_TAXONOMY);
 	}
 
@@ -128,10 +255,29 @@ class Release {
 	* enhance list with preview url
 	* & using spotify durations when preview exists
 	*/
-	function set_tracklist() {
+	function set_tracklist( array $options = [] ) {
+
+		$defaults = [ 'refresh' => false ];
+
+		$options = wp_parse_args( $options, $defaults );
+
+		if( ! empty(  $this->get_tracklist() ) && ! $options['refresh'] ) {
+			error_log("Tracklist exists for # " . $this->post->ID . " - Skipping - " );
+			return;
+		}
+
+		error_log('Fetching Tracklist for # ' . $this->post->ID);
 
 		$title = $this->post->post_title;
 		$artist = $this->get_artists();
+
+		$params = [
+			'title' => $title,
+			'artist' => $artist,
+			'type' => 'master',
+		];
+
+		$params = wp_parse_args( $options, $params );
 
 		// remove all tracks - acf style
 		update_field('tracklist', [], $this->post->ID);
@@ -140,7 +286,7 @@ class Release {
 		$tracklist_discogs = null;
 		try {
 			$discogs = new Discogs\Database();
-			$tracklist_discogs = $discogs->get_tracklist( [ 'title' => $title, 'artist' => $artist ] );
+			$tracklist_discogs = $discogs->get_tracklist( $params );
 			$tracklist_discogs = array_map(
 				function ($track) {
 					return [
@@ -157,7 +303,7 @@ class Release {
 
 		// get from spotify
 		try {
-			$tracklist_spotify = $this->get_spotify_tracklist();
+			$tracklist_spotify = $this->get_spotify_tracklist( $params );
 			if( $tracklist_spotify ) {
 				$tracklist_spotify = array_map(
 					function($track) {
@@ -248,12 +394,15 @@ class Release {
 	* get a tracklist from spotify
 	* @todo this shoudl be moved to API\Spotify
 	*/
-	function get_spotify_tracklist() {
-		$params = [
+	function get_spotify_tracklist( $params ) {
 
-			'artist' => $this->get_artists(),
-			'title' => $this->post->post_title,
-		];
+		$params = wp_parse_args(
+			$params,
+			[
+				'artist' => $this->get_artists(),
+				'title' => $this->post->post_title,
+			]
+		);
 
 		/**
 		* @since 1.0.0
@@ -266,15 +415,77 @@ class Release {
 		$title = $params['title'];
 
 		try {
+
+			// get a token from the API
+			$authorize_url = 'https://accounts.spotify.com/api/token';
+			$key = getenv('SPOTIFY_API_CONSUMER_KEY');
+			$secret = getenv('SPOTIFY_API_CONSUMER_SECRET');
+
+			// do not proceed if no credentials found
+			if( ! $key || ! $secret ) {
+				throw new Exception('get_spotify_tracklist: Spotify key and/or secret are missing.');
+			}
+
+			$encoded_spotify_credentials = base64_encode("$key:$secret");
+
+			$cache_key =  "WC_Discogs\Release\Spotify_Token_" . substr($encoded_spotify_credentials, 0, 12);
+			$access_token = wp_cache_get( $cache_key );
+
+			if( ! $access_token ) {
+
+				$response = wp_safe_remote_post(
+					$authorize_url,
+					[
+						'headers' => [
+							// HARD CODED SPOTIFY KEY & SECRET (DEV@AALTOMERI.NET)
+							// @TODO MOVE THIS TO SETTINGS !!!!!!
+							'Authorization' => 'Basic ' . $encoded_spotify_credentials
+						],
+						'body' => [
+							'grant_type' => 'client_credentials'
+						]
+					]
+				);
+
+				//turn WP_Error into an Exception
+				if ( is_wp_error($response) ) {
+					throw new Exception($response->get_error_message(), $response->get_error_code());
+				}
+
+				$response_body = json_decode($response['body']);
+
+				if( ! isset($response_body->access_token) ) {
+					return [];
+				}
+
+				$access_token = $response_body->access_token;
+				wp_cache_set( $cache_key, $access_token, null, $response_body->expires_in );
+
+			}
+
 			// search for track with title and artist
 			// TODO use Guzzle for consistency
-			$search_url = "https://api.spotify.com/v1/search?q=album:{$title}%20artist:{$artist}&type=album";
-			$response = wp_remote_get($search_url,['Accept' => 'application/json']);
+			$search_url = "https://api.spotify.com/v1/search?q=album:{$title}+artist:{$artist}&type=album";
+			$response = wp_remote_get(
+				$search_url,
+				[
+					'headers' => [
+						'Accept' => 'application/json',
+						'Authorization' => 'Bearer ' . $access_token
+					]
+				]
+			);
+
+			//turn WP_Error into an Exception
+			if ( is_wp_error($response) ) {
+				throw new Exception($response->get_error_message(), $response->get_error_code());
+			}
+
 			$response_body = json_decode($response['body']);
 
 			if( ! $response_body
-				|| ! $response_body->albums
-				|| ! $response_body->albums->items
+				|| ! isset($response_body->albums)
+				|| ! isset($response_body->albums->items)
 			) {
 				return [];
 			}
@@ -282,7 +493,20 @@ class Release {
 			$tracklist = [];
 			if ($response_body->albums->items) {
 				$album_url = $response_body->albums->items[0]->href;
-				$response = wp_remote_get($album_url,['Accept' => 'application/json']);
+				$response = wp_remote_get($album_url,
+					[
+						'headers' => [
+							'Accept' => 'application/json',
+							'Authorization' => 'Bearer ' . $access_token
+						]
+					]
+				);
+
+				//turn WP_Error into an Exception
+				if ( is_wp_error($response) ) {
+					throw new Exception($response->get_error_message(), $response->get_error_code());
+				}
+
 				$response_body = json_decode($response['body']);
 				return $response_body->tracks->items;
 			}
@@ -313,10 +537,30 @@ class Release {
 	* Will fetch Year of release from en external API
 	* and set the appropriate custom field
 	*/
-	public function set_year() {
+	public function set_year( array $options = [] ) {
+
+		$defaults = [ 'refresh' => false ];
+
+		$options = wp_parse_args( $options, $defaults );
+
+		if( $this->_release_date_year && ! $options['refresh'] ) {
+			error_log("Year exists for # " . $this->post->ID . " - Skipping - " );
+			return;
+		}
+
+		error_log('Fetching Year of release for # ' . $this->post->ID);
+
+		$params = [
+			'title' => $this->post->post_title,
+			'artist' => $this->get_artists(),
+			'type' => 'master',
+		];
+
+		$params = wp_parse_args( $options, $params );
+
 		// get from discogs
 		$discogs = new Discogs\Database();
-		$release_date_year = $discogs->get_year( [ 'title' => $this->post->post_title, 'artist' => $this->get_artists() ] );
+		$release_date_year = $discogs->get_year( $params );
 
 		update_field('release_date_year', $release_date_year, $this->post->ID);
 	}
@@ -338,7 +582,7 @@ class Release {
 	*
 	* @return int the ID of the attachment used as artwork for this Release
 	*/
-	public function set_artwork( $force = false ) {
+	public function set_artwork( $force = false, $params = [] ) {
 		global $wpdb;
 
 		// detach featured image from Release's post
@@ -359,6 +603,14 @@ class Release {
 		$artist = $this->get_artists();
 		$title = $this->post->post_title;
 
+		$defaults = [
+			'artist' => $artist,
+			'title' => $title,
+			'type' => 'master',
+		];
+
+		$params = wp_parse_args( $params, $defaults );
+
 		$attachment_id = null;
 
 		// Attachment title
@@ -368,7 +620,8 @@ class Release {
 		// we don't want to fetch from external source
 		// if we already have an image in the Media Library
 		// with a name that corresponds to the artwork we're looking for
-		if ( $attachment = Media::get_attachment_by_title( $artwork_wp_title ) ) {
+		$attachment = Media::get_attachment_by_title( $artwork_wp_title );
+		if ( $attachment ) {
 			$attachment_id = $attachment->ID;
 			// attach Media to Post
 			$wpdb->update(
@@ -382,23 +635,36 @@ class Release {
 			// by default we set the parent product image to be the variations image
 			$this->set_variations_artwork();
 
-			return $attachment_id;
+			// normal flow
+			// we have an artwork for this artist - title combination, we keep it
+			if ( ! $force ) {
+				error_log('Artwork found in Media Library for # ' . $this->post->ID . ' - Skipping -');
+				return $attachment_id;
+			}
+
+			// there is an attachment but as we are 'forcing' the artwork fetch we:
+			// remove attachment from Media Library as we will recreate it later
+			wp_delete_attachment( $attachment_id, true );
+			// state that we don't have an attachment id yet
+			$attachment_id = null; //
+
 		}
 
 		// we don't want to fetch unecessarily
 		// unless we really insist ...
 		if( ! $force ) {
 			if ( $attachment_id = $this->has_artwork() ) {
+				error_log('Artwork alreay set for # ' . $this->post->ID . ' - Skipping -');
 			 	return $attachment_id;
 			}
 		}
 
+		error_log('Fetching Artwork for # ' . $this->post->ID);
+
 		// Get Artwork URI from external source
 		$external_resource = new Discogs\Database();
-		$artwork_uri = $external_resource->get_artwork_uri( [
-			'artist' => $artist,
-			'title' => $title,
-		] );
+		$artwork_uri = $external_resource->get_artwork_uri( $params );
+
 
 		// if the artwork uri is the uri of the default placeholder
 		// we don't want to create a new attachment each time
@@ -427,10 +693,17 @@ class Release {
 
 		$attachment_id = get_post_thumbnail_id( $this->post->ID );
 
+
 		// variations have same image by default
 		$wc_product = wc_get_product( $this->post->ID );
 		if( $wc_product && 'variable' === $wc_product->get_type() ) {
+
+			// we make sure we get all variations
+			// as some other plugin (WC POS for instance)
+			// might hide some variations
+			remove_all_filters('woocommerce_get_children');
 			$variations_ids = $wc_product->get_children();
+
 			foreach( $variations_ids as $variation_id ) {
 				set_post_thumbnail( $variation_id, $attachment_id );
 			}
@@ -442,7 +715,7 @@ class Release {
 	* the post is considered NOT to have an associated artwork if
 	* - it has no featured image
 	* - its featured image is the default image
-	* @return mixed the attachment ID or
+	* @return mixed the attachment ID or false if no artwork
 	*/
 	public function has_artwork() {
 		$has_artwork = false;
@@ -465,6 +738,16 @@ class Release {
 		}
 
 		return $has_artwork;
+	}
+
+
+	/** UTILITIES **/
+
+	/**
+	* get Artists + Release name
+	*/
+	public function get_fullname() {
+		return $this->get_artists() . ' - ' . $this->post->post_title;
 	}
 
 }

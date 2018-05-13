@@ -37,7 +37,7 @@ class Database extends Resource {
 		$release = $this->get_main_release($params);
 		$genres = [];
 		if ($release) {
-			return $release['genres'];
+			return isset( $release['genres'] ) ? $release['genres'] : [];
 		}
 		return $genres;
 	}
@@ -46,7 +46,7 @@ class Database extends Resource {
 		$release = $this->get_main_release($params);
 		$styles = [];
 		if ($release) {
-			return $release['styles'];
+			return isset( $release['styles'] ) ? $release['styles'] : [];
 		}
 		return $styles;
 	}
@@ -82,8 +82,15 @@ class Database extends Resource {
 
         // var_dump($params);
 
+		$cache_key =  "WC_Discogs\API\Discogs_search_" . md5(serialize($params));
+
+		if( $result = wp_cache_get( $cache_key ) ) {
+			return $result;
+		}
+
 		try {
 			$result = $this->client->search( $params );
+			wp_cache_set( $cache_key, $result );
 		}
 		catch (Exception $error) {
 			echo $error->getMessage();
@@ -97,24 +104,44 @@ class Database extends Resource {
 
 		$type = isset($params['type']) ? $params['type'] : 'release';
 
-		$response = $this->search( [
-			'q' => $params['artist'],
-			'title' => $params['title'],
-			'type' => $type,
-		] );
+		if( ! isset($params['discogs_id']) ) {
 
-		if ( empty($response['results']) ) {
-			return null;
+			$search_params = [
+				'q' => $params['artist'],
+				'title' => $params['title'],
+				'type' => $type,
+			];
+
+			$response = $this->search( $search_params );
+
+			if ( empty($response['results']) ) {
+				return null;
+			}
+
+			$id = $response['results'][0]['id'];
+
+		}
+		else {
+			$id = $params['discogs_id'];
 		}
 
-		$id = $response['results'][0]['id'];
+
+		$cache_key =  "WC_Discogs\API\Discogs_$type-$id";
 
 		switch($type) {
 			case 'release':
+				if( $release = wp_cache_get( $cache_key ) ) {
+					break;
+				}
 				$release = $this->client->getRelease( [ 'id' => $id ] );
+				wp_cache_set( $cache_key, $release );
 				break;
 			case 'master':
+				if( $release = wp_cache_get( $cache_key ) ) {
+					break;
+				}
 				$release = $this->client->getMaster( [ 'id' => $id ] );
+				wp_cache_set( $cache_key, $release );
 				break;
 			default:
 				$release = null;
@@ -134,10 +161,24 @@ class Database extends Resource {
 	*/
 	public function get_main_release( array $params ) {
 
+		$release = null;
+
+		$defaults = [
+			'type' => 'master'
+		];
+
+		$params = wp_parse_args( $params, $defaults );
+
 		// try Master Release
-		$release = $this->get_master_release( $params );
-		// try Main Release
+		// by default
+		if( $params['type'] === 'master') {
+			$release = $this->get_master_release( $params );
+		}
+		// try Main Release if no master found
+		// or we want to skip master in certain cases
+		// specifying 'type' => 'release' (or anything but 'master' for the moment)
 		if( ! $release ) {
+			$params['type'] = 'release';
 			$release = $this->get_release( $params );
 		}
 		// try with artist + title as the main query param
@@ -158,7 +199,8 @@ class Database extends Resource {
 			);
 			// let's go again
 			$params['final'] = true;
-			$this->get_main_release( $params );
+			$params['type'] = 'master';
+			$release = $this->get_main_release( $params );
 		}
 		return $release;
 
