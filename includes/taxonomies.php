@@ -223,6 +223,15 @@ add_filter(
     1
 );
 
+// add custom filters to WooCommerce default sorting options'
+add_filter(
+	'woocommerce_default_catalog_orderby_options',
+	function($options) {
+		$options['taxonomy.' . ARTIST_TAXONOMY . '-asc'] = __('Sort by artists - A-Z', 'woocommerce-recordstore');
+		return $options;
+	}
+);
+
 // allow custom filters in WC order args
 // WC will try to set its default orderby if it does not recognize what is passed
 add_filter(
