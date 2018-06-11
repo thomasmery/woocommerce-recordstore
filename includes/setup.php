@@ -65,6 +65,9 @@ class Setup {
 		* global helpers
 		*/
 		require_once( PLUGIN_PATH . '/includes/functions.php' );
+		
+		/** WooCommerce filters */
+		require_once( PLUGIN_PATH . '/includes/filters.php' );
 	}
 
 	public function acf_path( $path ) {
