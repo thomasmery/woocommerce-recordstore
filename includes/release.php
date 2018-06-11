@@ -60,12 +60,14 @@ class Release {
 		if( ! $artists ) {
 			return $title_slug;
 		}
-
-		return sanitize_title(
+		
+		$slug = sanitize_title(
 			$artists_slug
 			. ' - '
 			. $title_slug
 		);
+		
+		return wp_unique_post_slug($slug, $this->post->ID, $this->post->post_status, $this->post->post_type, $this->post->post_parent);
 
 	}
 
@@ -83,7 +85,7 @@ class Release {
 		try {
 			$updated_rows = $wpdb->update( $wpdb->posts, array( 'post_name' => $slug), [ 'ID' => $this->post->ID ] );
 		}
-		catch(Excpetion $e) {
+		catch(Exception $e) {
 			echo 'Could not update Release #' . $this->post->ID . '. Error: ' . $e->getMessage();
 		}
 

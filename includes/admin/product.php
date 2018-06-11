@@ -48,6 +48,13 @@ class Product {
 			return $slug;
 		}
 
+		remove_filter(
+			'wp_unique_post_slug',
+			[ __CLASS__, 'generate_release_slug'],
+			10,
+			6
+		);
+
 		return $release->generate_slug();
 
 	}
