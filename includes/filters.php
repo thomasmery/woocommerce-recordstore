@@ -31,5 +31,7 @@ add_filter(
                 }
             );
         }
+        
+        return $terms;
     }
 );
